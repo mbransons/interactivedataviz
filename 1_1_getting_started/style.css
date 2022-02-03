@@ -73,6 +73,8 @@ body {
   font-size: 3rem;
   line-height: 4rem;
   font-weight: 400;
+  letter-spacing: -2px;
+  word-spacing: 11px;
 }
 
 .badge-namespace {
