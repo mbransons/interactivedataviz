@@ -1,14 +1,36 @@
 <!DOCTYPE html>
-  <head>
-    <meta charset="utf-8">
-    <title>Interactive Data Visualization Tutorial</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
-    <link rel="stylesheet" href="./style.css">
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    <h3>Tutorial Assignment: 1_3_intro_to_js </h3>
-    <!-- add any HTML you might need here, like a button or a div -->
-    <script src="main.js"></script>
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <title>Drag & Drop the Circles to the Center Square</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div class="columns block">
+    <div class="column is-three-fifths is-offset-one-fifth block">
+      <h1 class="has-text-success is-size-4 has-text-centered pt-3">Drag & Drop the Circles to the Center Square</h1>
+      <div class="block is-flex is-align-items-center mx-6">
+        <button id="start" class="button is-success mr-4">Play</button>
+        <span class="tag is-white is-large mr-4">Count:<span id="counter" class="ml-1">00</span></span>
+        <progress id="timer" class="progress is-success" value="100" max="100"></progress>
+      </div>
+
+      <div class="gamespace box">
+        <div class="basket box"></div>
+        <!-- <div class="circle box has-background-info"></div> -->
+      </div>
+    </div>
+  </div>
+
+
+  <script src="js/gsap.min.js"></script>
+  <script src="js/Draggable.min.js"></script>
+  <script src="js/InertiaPlugin.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
 </html>
