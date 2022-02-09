@@ -39,3 +39,14 @@ body {
   height: 50px;
   border-radius: 100%;
 }
+
+#timer {
+  max-width: 450px;
+}
+
+.circle,
+#timer,
+#start,
+#game-title {
+  transition: color 0.3s, background-color 0.3s;
+}
