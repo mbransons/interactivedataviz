@@ -194,4 +194,13 @@ function counterDisplayUpdate() {
   counterDisplay.innerText = String(gameState.counter).padStart(2, '0');
 }
 
+// start game with start button
 startBtn.addEventListener('click', startGame);
+
+// start game with spacebar
+document.addEventListener('keydown', playSpace);
+function playSpace(e) {
+  if (e.key === ' ' || e.key === 'Spacebar') {
+    !startBtn.disabled ? startGame() : console.log('game in progress');
+  }
+}
