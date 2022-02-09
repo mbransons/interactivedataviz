@@ -46,7 +46,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  padding-bottom: 4.7rem !important;
   -webkit-line-clamp: 3;
 }
 
