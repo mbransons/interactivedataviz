@@ -13,17 +13,6 @@ body {
   height: 100%;
 }
 
-#marble {
-  fill: #ef2307;
-}
-#basket {
-  fill: #ffffff;
-}
-
-#figure {
-  width: 100%;
-}
-
 .gamespace {
   position: relative;
   width: 600px;
