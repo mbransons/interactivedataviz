@@ -133,6 +133,8 @@ function endGame() {
   gameState.draggableArr.forEach((draggable) => draggable.disable());
   startBtn.disabled = false;
   startBtn.classList.remove('is-loading');
+  startBtn.classList.remove('is-danger');
+  startBtn.classList.add('is-success');
 }
 
 // resets gameState values, display values, and removes any remaining circles
@@ -146,8 +148,6 @@ function resetGame() {
   timerDisplay.classList.add('is-success');
   gameTitle.classList.remove('has-text-danger');
   gameTitle.classList.add('has-text-success');
-  startBtn.classList.remove('is-danger');
-  startBtn.classList.add('is-success');
   color = '#48c78e';
   let circles = document.querySelectorAll('.circle');
   for (let circle of circles) {
