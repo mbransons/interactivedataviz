@@ -30,9 +30,12 @@ const gameState = {
 let timer = gameState.time;
 
 // game dimensions
+// set basket size
 const gameWidth = 600;
-const basketWidth = 75;
+const basketWidth = 100;
 const circleWidth = 50;
+basket.style.width = `${basketWidth}px`;
+basket.style.height = `${basketWidth}px`;
 
 // create circle postions with one that is outside of the basket
 function elPos() {
