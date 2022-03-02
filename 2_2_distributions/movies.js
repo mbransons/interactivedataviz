@@ -1,5 +1,5 @@
 // data source https://www.kaggle.com/sanjeetsinghnaik/top-1000-highest-grossing-movies/version/1
-
+const apiKey = 'f7f9fe195f863c63a5e2f42428f3c16b';
 /* CONSTANTS AND GLOBALS */
 const margin = { left: 80, right: 10, top: 100, bottom: 70 };
 const width = 900 - margin.left - margin.right;
@@ -65,35 +65,69 @@ const yLabel = g
   .attr('text-anchor', 'middle')
   .attr('transform', 'rotate(-90)')
   .text('Gross');
+let posterURL;
+//pass a random actor to search(actor) function
+async function search(movie) {
+  return await axios
+    .get(
+      `https://api.themoviedb.org/3/search/movie?api_key=f7f9fe195f863c63a5e2f42428f3c16b&language=en-US&query=${movie}&page=1&include_adult=false`
+    )
+    .then((res) => res.data)
+    .then((data) => data.results[0])
+    .then((movie) => {
+      console.log(`https://image.tmdb.org/t/p/w92${movie.poster_path}`);
+      posterURL = `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
+      return `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
+    });
+}
 
 //ToolTip
 const tip = d3
   .tip()
   .attr('class', 'd3-tip')
   .html((event, d) => {
-    let div = `<div class="content is-small">
-    <table>
-      <tbody>
-        <tr>
-          <td colspan="2" class="p-1 has-text-weight-semibold">${parseTitle(
-            d[title]
-          )}</td>
-        </tr>
-        <tr>
-          <td class="p-1 has-text-weight-semibold">Release Date</td>
-          <td class="p-1">${formatTime(d[date])} </td>
-        </tr>
-        <tr>
-          <td class="p-1 has-text-weight-semibold">Gross</td>
-          <td class="p-1">${d3.format('$,.3s')(d[sales]).replace(/G/, 'B')}</td>
-        </tr>
-      </tbody>
-    </table>
+    let div = `<div class="box">
+    <article class="media">
+      <div class="media-left">
+        <figure class="image">
+        <img src=${posterURL}>
+        </figure>
+      </div>
+      <div class="media-content">
+        <div class="content">
+        <table>
+        <tbody>
+          <tr>
+            <td class="p-1 has-text-weight-semibold is-uppercase">${parseTitle(
+              d[title]
+            )}
+            </td>
+          </tr>
+          <tr>
+            <td class="p-1">${formatTime(d[date])} </td>
+          </tr>
+          <tr>
+            <td class="p-1">${d3
+              .format('$,.3s')(d[sales])
+              .replace(/G/, 'B')}</td>
+          </tr>
+        </tbody>
+      </table>
+        </div>
+      </div>
+    </article>
   </div>`;
     return div;
   });
 
 g.call(tip);
+
+async function tipShow(event, d) {
+  console.log(event);
+  console.log(d);
+  await search(parseTitle(d[title]));
+  tip.show(event, d);
+}
 
 let movieData;
 
@@ -144,7 +178,7 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
     .attr('fill', '#ffff33')
     .attr('stroke', '#000000')
     .attr('stroke-width', '1')
-    .on('mouseover', tip.show)
+    .on('mouseover', (e, d) => tipShow(e, d))
     .on('mouseout', tip.hide)
     .attr('cx', (d) => x(d[date]))
     .attr('cy', (d) => y(d[sales]))
