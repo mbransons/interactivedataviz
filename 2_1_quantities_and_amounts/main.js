@@ -17,6 +17,38 @@ const g = svg
   .append('g')
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
+// Labels
+const chartTitle = g
+  .append('text')
+  .attr('class', 'x axis-label')
+  .attr('x', width / 2)
+  .attr('y', -50)
+  .attr('font-size', '15px')
+  .attr('font-family', 'sans-serif')
+  .attr('text-anchor', 'middle')
+  .text('Squirrely Data');
+
+const xLabel = g
+  .append('text')
+  .attr('class', 'x axis-label')
+  .attr('x', width / 2)
+  .attr('y', height + 65)
+  .attr('font-size', '16px')
+  .attr('font-family', 'sans-serif')
+  .attr('text-anchor', 'middle')
+  .text('Activities');
+
+const yLabel = g
+  .append('text')
+  .attr('class', 'y axis-label')
+  .attr('x', -(height / 2))
+  .attr('y', -40)
+  .attr('font-size', '16px')
+  .attr('font-family', 'sans-serif')
+  .attr('text-anchor', 'middle')
+  .attr('transform', 'rotate(-90)')
+  .text('Count');
+
 let squirrelData;
 
 /* LOAD DATA */
@@ -43,6 +75,8 @@ d3.csv('../data/squirrelActivities.csv', d3.autoType).then((data) => {
 
   const y = d3.scaleLinear().domain([0, max]).range([height, 0]);
 
+  /* HTML ELEMENTS */
+  /** Select your container and append the visual elements to it */
   const rects = g.selectAll('rect').data(squirrelData);
 
   rects
@@ -70,7 +104,4 @@ d3.csv('../data/squirrelActivities.csv', d3.autoType).then((data) => {
     .ticks(10)
     .tickFormat((d) => d);
   g.append('g').attr('class', 'y axis').call(yAxisCall);
-
-  /* HTML ELEMENTS */
-  /** Select your container and append the visual elements to it */
 });

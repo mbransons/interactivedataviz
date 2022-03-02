@@ -30,18 +30,6 @@ d3.json('../data/environmentRatings.json', d3.autoType).then((data) => {
   const y = d3.scaleLinear().domain([0, 1]).range([height, 0]);
   /* HTML ELEMENTS */
 
-  const circles = g.selectAll('circle').data(data);
-  circles
-    .enter()
-    .append('circle')
-    .attr('class', 'circle')
-    .attr('fill', (d) => c(d.Party))
-    .attr('stroke', '#000000')
-    .attr('stroke-width', '1')
-    .attr('cx', (d) => x(d.envScore2020))
-    .attr('cy', (d) => y(d.ideologyScore2020))
-    .attr('r', 6);
-
   const xAxisCall = d3
     .axisBottom(x)
     .ticks(10)
@@ -56,4 +44,16 @@ d3.json('../data/environmentRatings.json', d3.autoType).then((data) => {
     .ticks(10)
     .tickFormat((d) => d);
   g.append('g').attr('class', 'y axis').call(yAxisCall);
+
+  const circles = g.selectAll('circle').data(data);
+  circles
+    .enter()
+    .append('circle')
+    .attr('class', 'circle')
+    .attr('fill', (d) => c(d.Party))
+    .attr('stroke', '#000000')
+    .attr('stroke-width', '1')
+    .attr('cx', (d) => x(d.envScore2020))
+    .attr('cy', (d) => y(d.ideologyScore2020))
+    .attr('r', 6);
 });
