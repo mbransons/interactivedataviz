@@ -2,7 +2,7 @@
 
 /* CONSTANTS AND GLOBALS */
 const margin = { left: 80, right: 10, top: 100, bottom: 70 };
-const width = 600 - margin.left - margin.right;
+const width = 900 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
 const svg = d3
@@ -27,7 +27,7 @@ const chartTitle = g
   .attr('font-size', '15px')
   .attr('font-family', 'sans-serif')
   .attr('text-anchor', 'middle')
-  .text('Top 1000 Grossing Hollywood Films');
+  .text('Top Grossing Hollywood Films');
 
 const xLabel = g
   .append('text')
@@ -69,15 +69,16 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
   console.log(data);
   movieData = data;
   movieData.forEach((movie) => {
-    // movie[date] = parseTime(movie[date]);
-    movie[date] = parseYear(parseDateFromTitle(movie[title]));
+    movie[date] = parseTime(movie[date]);
   });
+  // next date to add is 129
+  const dataFix = movieData.filter((movie) => movie[date]);
   /* SCALES */
-  const minDate = d3.min(data, (d) => d[date]);
-  //   const minDate = parseTime('January 1, 1920');
-  const maxDate = d3.max(data, (d) => d[date]);
-  const minSales = d3.min(data, (d) => d[sales]);
-  const maxSales = d3.max(data, (d) => d[sales]);
+  //   const minDate = d3.min(dataFix, (d) => d[date]);
+  const minDate = parseTime('January 1, 1970');
+  const maxDate = d3.max(dataFix, (d) => d[date]);
+  const minSales = d3.min(dataFix, (d) => d[sales]);
+  const maxSales = d3.max(dataFix, (d) => d[sales]);
   console.log(`
   minDate: ${minDate} 
   maxDate: ${maxDate}
@@ -102,7 +103,7 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
     .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
   g.append('g').attr('class', 'y axis').call(yAxisCall);
 
-  const circles = g.selectAll('circle').data(data);
+  const circles = g.selectAll('circle').data(dataFix);
   circles
     .enter()
     .append('circle')
