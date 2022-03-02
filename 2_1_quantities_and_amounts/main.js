@@ -32,22 +32,22 @@ const xLabel = g
   .append('text')
   .attr('class', 'x axis-label')
   .attr('x', width / 2)
-  .attr('y', height + 65)
+  .attr('y', height + 55)
   .attr('font-size', '16px')
   .attr('font-family', 'sans-serif')
   .attr('text-anchor', 'middle')
-  .text('Activities');
+  .text('Count');
 
 const yLabel = g
   .append('text')
   .attr('class', 'y axis-label')
   .attr('x', -(height / 2))
-  .attr('y', -40)
+  .attr('y', -60)
   .attr('font-size', '16px')
   .attr('font-family', 'sans-serif')
   .attr('text-anchor', 'middle')
   .attr('transform', 'rotate(-90)')
-  .text('Count');
+  .text('Activities');
 
 let squirrelData;
 
@@ -65,15 +65,15 @@ d3.csv('../data/squirrelActivities.csv', d3.autoType).then((data) => {
     .range(d3.schemeCategory10);
 
   /* SCALES */
-  const max = d3.max(data, (d) => d.count);
-  const x = d3
+  const maxCount = d3.max(data, (d) => d.count);
+  const y = d3
     .scaleBand()
     .domain(squirrelActivities)
-    .range([0, width])
+    .range([height, 0])
     .paddingInner(0.3)
     .paddingOuter(0.2);
 
-  const y = d3.scaleLinear().domain([0, max]).range([height, 0]);
+  const x = d3.scaleLinear().domain([0, maxCount]).range([0, width]);
 
   /* HTML ELEMENTS */
   /** Select your container and append the visual elements to it */
@@ -82,26 +82,21 @@ d3.csv('../data/squirrelActivities.csv', d3.autoType).then((data) => {
   rects
     .enter()
     .append('rect')
-    .attr('y', (d) => y(d.count))
-    .attr('x', (d) => x(d.activity))
-    .attr('width', x.bandwidth)
-    .attr('height', (d) => height - y(d.count))
+    .attr('y', (d) => y(d.activity))
+    .attr('x', 0)
+    .attr('width', (d) => x(d.count))
+    .attr('height', y.bandwidth)
     .attr('fill', (d) => color(d.activity));
 
-  const xAxisCall = d3.axisBottom(x);
+  const xAxisCall = d3
+    .axisBottom(x)
+    .ticks(10)
+    .tickFormat((d) => d);
   g.append('g')
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${height})`)
-    .call(xAxisCall)
-    .selectAll('text')
-    .attr('y', '10')
-    .attr('x', '-25')
-    .attr('text-achor', 'end')
-    .attr('transform', 'rotate(-50)');
+    .call(xAxisCall);
 
-  const yAxisCall = d3
-    .axisLeft(y)
-    .ticks(10)
-    .tickFormat((d) => d);
+  const yAxisCall = d3.axisLeft(y);
   g.append('g').attr('class', 'y axis').call(yAxisCall);
 });
