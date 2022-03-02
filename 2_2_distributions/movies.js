@@ -5,6 +5,22 @@ const margin = { left: 80, right: 10, top: 100, bottom: 70 };
 const width = 900 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
+//data key names
+const sales = 'World Sales (in $)';
+const date = 'Release Date';
+const title = 'Title';
+const desc = 'Movie Info';
+const length = 'Movie Runtime';
+
+//parsing tools
+const formatTime = d3.timeFormat('%B %d, %Y');
+const parseTime = d3.timeParse('%B %d, %Y');
+const parseYear = d3.timeParse('%Y');
+const formatYear = d3.timeFormat('%Y');
+const parseTitle = (title) => title.slice(0, title.length - 7);
+const parseDateFromTitle = (title) =>
+  title.slice(title.length - 5, title.length - 1);
+
 const svg = d3
   .select('#chart-area')
   .append('svg')
@@ -50,20 +66,37 @@ const yLabel = g
   .attr('transform', 'rotate(-90)')
   .text('Gross');
 
-let movieData;
-//data key names
-const sales = 'World Sales (in $)';
-const date = 'Release Date';
-const title = 'Title';
-const desc = 'Movie Info';
-const length = 'Movie Runtime';
+//ToolTip
+const tip = d3
+  .tip()
+  .attr('class', 'd3-tip')
+  .html((event, d) => {
+    let div = `<div class="content is-small">
+    <table>
+      <tbody>
+        <tr>
+          <td colspan="2" class="p-1 has-text-weight-semibold">${parseTitle(
+            d[title]
+          )}</td>
+        </tr>
+        <tr>
+          <td class="p-1 has-text-weight-semibold">Release Date</td>
+          <td class="p-1">${formatTime(d[date])} </td>
+        </tr>
+        <tr>
+          <td class="p-1 has-text-weight-semibold">Gross</td>
+          <td class="p-1">${d3.format('$,.3s')(d[sales]).replace(/G/, 'B')}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+    return div;
+  });
 
-const parseTime = d3.timeParse('%B %d, %Y');
-const parseYear = d3.timeParse('%Y');
-const formatYear = d3.timeFormat('%Y');
-const parseTitle = (title) => title.slice(0, title.length - 7);
-const parseDateFromTitle = (title) =>
-  title.slice(title.length - 5, title.length - 1);
+g.call(tip);
+
+let movieData;
+
 /* LOAD DATA */
 d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
   console.log(data);
@@ -111,6 +144,8 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
     .attr('fill', '#ffff33')
     .attr('stroke', '#000000')
     .attr('stroke-width', '1')
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
     .attr('cx', (d) => x(d[date]))
     .attr('cy', (d) => y(d[sales]))
     .attr('r', 3);
