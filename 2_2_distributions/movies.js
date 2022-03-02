@@ -46,7 +46,7 @@ const yLabel = g
   .attr('font-family', 'sans-serif')
   .attr('text-anchor', 'middle')
   .attr('transform', 'rotate(-90)')
-  .text('Gross (billions)');
+  .text('Gross');
 
 let movieData;
 //data key names
@@ -57,14 +57,17 @@ const desc = 'Movie Info';
 const length = 'Movie Runtime';
 
 const parseTime = d3.timeParse('%B %d, %Y');
+const formatYear = d3.timeFormat('%Y');
 const parseTitle = (title) => title.slice(0, title.length - 7);
 /* LOAD DATA */
 d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
   movieData = data;
-
+  movieData.forEach((movie) => {
+    movie[date] = parseTime(movie[date]);
+  });
   /* SCALES */
-  const minDate = d3.min(data, (d) => parseTime(d[date]));
-  const maxDate = d3.max(data, (d) => parseTime(d[date]));
+  const minDate = d3.min(data, (d) => d[date]);
+  const maxDate = d3.max(data, (d) => d[date]);
   const minSales = d3.min(data, (d) => d[sales]);
   const maxSales = d3.max(data, (d) => d[sales]);
   console.log(`
@@ -74,4 +77,16 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
   maxSales: ${maxSales}`);
   const x = d3.scaleTime().domain([minDate, maxDate]).range([0, width]);
   const y = d3.scaleLinear().domain([minSales, maxSales]).range([height, 0]);
+
+  const xAxisCall = d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%Y'));
+  g.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${height})`)
+    .call(xAxisCall);
+
+  const yAxisCall = d3
+    .axisLeft(y)
+    .ticks(10)
+    .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
+  g.append('g').attr('class', 'y axis').call(yAxisCall);
 });
