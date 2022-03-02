@@ -20,9 +20,9 @@ const g = svg
 // Labels
 const chartTitle = g
   .append('text')
-  .attr('class', 'x axis-label')
+  .attr('class', 'x axis-label title')
   .attr('x', width / 2)
-  .attr('y', -50)
+  .attr('y', -30)
   .attr('font-size', '15px')
   .attr('font-family', 'sans-serif')
   .attr('text-anchor', 'middle')
@@ -32,7 +32,7 @@ const xLabel = g
   .append('text')
   .attr('class', 'x axis-label')
   .attr('x', width / 2)
-  .attr('y', height + 55)
+  .attr('y', height + 40)
   .attr('font-size', '16px')
   .attr('font-family', 'sans-serif')
   .attr('text-anchor', 'middle')
