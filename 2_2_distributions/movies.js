@@ -56,6 +56,7 @@ const date = 'Release Date';
 const title = 'Title';
 const desc = 'Movie Info';
 const length = 'Movie Runtime';
+const genre = 'Genre';
 
 //parsing tools
 const formatTime = d3.timeFormat('%B %d, %Y');
@@ -65,6 +66,26 @@ const formatYear = d3.timeFormat('%Y');
 const parseTitle = (title) => title.slice(0, title.length - 7);
 const parseDateFromTitle = (title) =>
   title.slice(title.length - 5, title.length - 1);
+
+// regex based function to convert string enclosed array
+// Ex: "['Action', 'Adventure', 'Sci-Fi']" to an array
+// ['Action', 'Adventure', 'Sci-Fi']
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll
+const parseGenres = (str) => {
+  let myRegexp = /'([^']*)'/g;
+  let arr = [];
+
+  //Iterate through results of regex search
+  do {
+    var match = myRegexp.exec(str);
+    if (match != null) {
+      //Each call to exec returns the next match as an array where index 1
+      //is the captured group if it exists and index 0 is the text matched
+      arr.push(match[1] ? match[1] : match[0]);
+    }
+  } while (match != null);
+  return arr;
+};
 let posterURL;
 //pass a random actor to search(actor) function
 async function search(movie) {
@@ -129,13 +150,15 @@ let movieData;
 
 /* LOAD DATA */
 d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
-  console.log(data);
   movieData = data;
   movieData.forEach((movie) => {
     movie[date] = parseTime(movie[date]);
+    movie[genre] = parseGenres(movie[genre]);
   });
   // next date to add is 129
+  // removes movies without premiere date
   const dataFix = movieData.filter((movie) => movie[date]);
+  console.log(dataFix);
   /* SCALES */
   //   const minDate = d3.min(dataFix, (d) => d[date]);
   const minDate = parseTime('January 1, 1970');
@@ -178,5 +201,5 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
     .on('mouseout', tip.hide)
     .attr('cx', (d) => x(d[date]))
     .attr('cy', (d) => y(d[sales]))
-    .attr('r', 3);
+    .attr('r', 6);
 });
