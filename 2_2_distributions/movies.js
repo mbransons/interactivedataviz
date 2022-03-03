@@ -70,21 +70,12 @@ const parseDateFromTitle = (title) =>
 // regex based function to convert string enclosed array
 // Ex: "['Action', 'Adventure', 'Sci-Fi']" to an array
 // ['Action', 'Adventure', 'Sci-Fi']
+// https://stackoverflow.com/questions/7998180/regex-how-to-extract-text-from-between-quotes-and-exclude-quotes
+// rewritten with matchAll
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll
 const parseGenres = (str) => {
-  let myRegexp = /'([^']*)'/g;
-  let arr = [];
-
-  //Iterate through results of regex search
-  do {
-    var match = myRegexp.exec(str);
-    if (match != null) {
-      //Each call to exec returns the next match as an array where index 1
-      //is the captured group if it exists and index 0 is the text matched
-      arr.push(match[1] ? match[1] : match[0]);
-    }
-  } while (match != null);
-  return arr;
+  let regexp = /'([^']*)'/g;
+  return Array.from(str.matchAll(regexp), (m) => m[1]);
 };
 let posterURL;
 //pass a random actor to search(actor) function
