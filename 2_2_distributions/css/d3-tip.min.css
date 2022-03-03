@@ -5,15 +5,14 @@
  * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
  */
 .d3-tip {
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.4;
-  padding: 0;
-  pointer-events: none !important;
-  color: #203d5d;
-  /* box-shadow: 0 4px 20px 4px rgba(0, 20, 60, 0.1),
-    0 4px 80px -8px rgba(0, 20, 60, 0.2); */
-  background-color: #fff;
-  border-radius: 4px;
+  /* font-family: Arial, Helvetica, sans-serif; */
+  /* line-height: 1.4; */
+  /* padding: 0; */
+  /* pointer-events: none !important; */
+  /* color: #203d5d; */
+  /* box-shadow: 0 4px 20px 4px rgba(0, 20, 60, 0.1), 0 4px 80px -8px rgba(0, 20, 60, 0.2); */
+  /* background-color: #fff; */
+  /* border-radius: 4px; */
   z-index: 200;
 }
 .d3-tip:after {

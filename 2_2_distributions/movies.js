@@ -75,9 +75,7 @@ async function search(movie) {
     .then((res) => res.data)
     .then((data) => data.results[0])
     .then((movie) => {
-      console.log(`https://image.tmdb.org/t/p/w92${movie.poster_path}`);
       posterURL = `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
-      return `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
     });
 }
 
@@ -90,7 +88,7 @@ const tip = d3
     <article class="media">
       <div class="media-left">
         <figure class="image">
-        <img src=${posterURL}>
+        <img src=${posterURL ? posterURL : 'img/no-poster-movie.png'}>
         </figure>
       </div>
       <div class="media-content">
@@ -123,8 +121,6 @@ const tip = d3
 g.call(tip);
 
 async function tipShow(event, d) {
-  console.log(event);
-  console.log(d);
   await search(parseTitle(d[title]));
   tip.show(event, d);
 }

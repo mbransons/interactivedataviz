@@ -4,7 +4,7 @@ const width = 600 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const c = d3
   .scaleOrdinal()
-  .domain(['R', 'D'])
+  .domain(['R', 'D', 'I'])
   .range(['#e41a1c', '#377eb8', '#ffff33']);
 
 const svg = d3
