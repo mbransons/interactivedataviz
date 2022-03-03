@@ -1,26 +1,10 @@
 // data source https://www.kaggle.com/sanjeetsinghnaik/top-1000-highest-grossing-movies/version/1
 const apiKey = 'f7f9fe195f863c63a5e2f42428f3c16b';
+
 /* CONSTANTS AND GLOBALS */
 const margin = { left: 80, right: 10, top: 100, bottom: 70 };
 const width = 900 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
-
-//data key names
-const sales = 'World Sales (in $)';
-const date = 'Release Date';
-const title = 'Title';
-const desc = 'Movie Info';
-const length = 'Movie Runtime';
-
-//parsing tools
-const formatTime = d3.timeFormat('%B %d, %Y');
-const parseTime = d3.timeParse('%B %d, %Y');
-const parseYear = d3.timeParse('%Y');
-const formatYear = d3.timeFormat('%Y');
-const parseTitle = (title) => title.slice(0, title.length - 7);
-const parseDateFromTitle = (title) =>
-  title.slice(title.length - 5, title.length - 1);
-
 const svg = d3
   .select('#chart-area')
   .append('svg')
@@ -65,6 +49,22 @@ const yLabel = g
   .attr('text-anchor', 'middle')
   .attr('transform', 'rotate(-90)')
   .text('Gross');
+
+//data key names
+const sales = 'World Sales (in $)';
+const date = 'Release Date';
+const title = 'Title';
+const desc = 'Movie Info';
+const length = 'Movie Runtime';
+
+//parsing tools
+const formatTime = d3.timeFormat('%B %d, %Y');
+const parseTime = d3.timeParse('%B %d, %Y');
+const parseYear = d3.timeParse('%Y');
+const formatYear = d3.timeFormat('%Y');
+const parseTitle = (title) => title.slice(0, title.length - 7);
+const parseDateFromTitle = (title) =>
+  title.slice(title.length - 5, title.length - 1);
 let posterURL;
 //pass a random actor to search(actor) function
 async function search(movie) {
