@@ -22,6 +22,7 @@ const g = svg
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
 const parseYear = d3.timeParse('%Y');
 const formatTime = d3.timeFormat('%Y');
+const formatPop = d3.format('.3s');
 /* LOAD DATA */
 d3.csv('../data/populationOverTime.csv', (d) => {
   return {
@@ -31,7 +32,28 @@ d3.csv('../data/populationOverTime.csv', (d) => {
   };
 }).then((data) => {
   console.log('data :>> ', data);
-
+  let curr, obj;
+  const sort = data.reduce((acc, val) => {
+    if (curr === val.country) {
+      acc
+        .find((countryObj) => countryObj.country === val.country)
+        .data.push({
+          year: val.year,
+          population: val.population,
+        });
+    } else {
+      curr = val.country;
+      obj = {};
+      obj.country = val.country;
+      obj.data = [];
+      obj.data.push({
+        year: val.year,
+        population: val.population,
+      });
+      acc.push(obj);
+    }
+    return acc;
+  }, []);
   /* SCALES */
   const x = d3
     .scaleTime()
@@ -55,7 +77,7 @@ d3.csv('../data/populationOverTime.csv', (d) => {
   const yAxisCall = d3
     .axisLeft(y)
     .ticks(10)
-    .tickFormat((d) => d);
+    .tickFormat((d) => formatPop(d).replace(/G/, 'B'));
   g.append('g').attr('class', 'y axis').call(yAxisCall);
 
   const line = d3
@@ -63,18 +85,11 @@ d3.csv('../data/populationOverTime.csv', (d) => {
     .x((d) => x(d.year))
     .y((d) => y(d.population));
 
-  // CREATE SVG ELEMENT
-
-  // BUILD AND CALL AXES
-
-  // LINE GENERATOR FUNCTION
-  // add line to chart
-  g.selectAll('.line')
-    .data([data])
-    .join('path')
-    .attr('class', 'line')
-    .attr('fill', 'none')
-    .attr('stroke', 'blue')
-    .attr('d', line(data));
-  // DRAW LINE
+  sort.forEach((country) => {
+    g.append('path')
+      .attr('class', 'line')
+      .attr('fill', 'none')
+      .attr('stroke', 'blue')
+      .attr('d', line(country.data));
+  });
 });
