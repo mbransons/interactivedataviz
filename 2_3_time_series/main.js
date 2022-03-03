@@ -69,7 +69,9 @@ d3.csv('../data/populationOverTime.csv', (d) => {
 
   // LINE GENERATOR FUNCTION
   // add line to chart
-  g.append('path')
+  g.selectAll('.line')
+    .data([data])
+    .join('path')
     .attr('class', 'line')
     .attr('fill', 'none')
     .attr('stroke', 'blue')
