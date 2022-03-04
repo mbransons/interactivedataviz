@@ -4,7 +4,7 @@ const apiKey = 'f7f9fe195f863c63a5e2f42428f3c16b';
 /* CONSTANTS AND GLOBALS */
 const margin = { left: 80, right: 10, top: 100, bottom: 70 };
 const width = 900 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
+const height = 700 - margin.top - margin.bottom;
 const svg = d3
   .select('#chart-area')
   .append('svg')
@@ -98,7 +98,7 @@ const tip = d3
   .tip()
   .attr('class', 'd3-tip')
   .html((event, d) => {
-    let div = `<div class="box">
+    let div = `<div class="box box--tip">
     <article class="media">
       <div class="media-left">
         <figure class="image">
@@ -134,20 +134,23 @@ const tip = d3
 
 g.call(tip);
 
-d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
+let movieData;
+
+const d3CSV = d3
+  .csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
   .then((data) => {
     //parse time, genres Array, and make async request for poster images
     data.forEach((movie) => {
       movie[date] = parseTime(movie[date]);
       movie[genre] = parseGenres(movie[genre]);
-      movie.posterURL = search(parseTitle(movie[title]));
+      movie.posterPromise = search(parseTitle(movie[title]));
     });
     return data;
   })
   .then((data) => {
     // reset posterURL from the promise value to the returned value
     return data.map((movie) => {
-      movie.posterURL.then((url) => {
+      movie.posterPromise.then((url) => {
         movie.posterURL = url;
       });
       return movie;
@@ -155,46 +158,91 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
   })
   .then((data) => {
     //filter out movies without release date
-    data = data.filter((movie) => movie[date]);
-
-    /* SCALES */
-    const minDate = parseTime('January 1, 1970');
-    const maxDate = d3.max(data, (d) => d[date]);
-    const minSales = d3.min(data, (d) => d[sales]);
-    const maxSales = d3.max(data, (d) => d[sales]);
-    const x = d3.scaleTime().domain([minDate, maxDate]).range([0, width]);
-    const y = d3
-      .scaleLog()
-      .domain([70000000, maxSales])
-      .range([height, 0])
-      .base(10);
-
-    const xAxisCall = d3
-      .axisBottom(x)
-      .ticks(10)
-      .tickFormat(d3.timeFormat('%Y'));
-    g.append('g')
-      .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${height})`)
-      .call(xAxisCall);
-
-    const yAxisCall = d3
-      .axisLeft(y)
-      .ticks(10)
-      .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
-    g.append('g').attr('class', 'y axis').call(yAxisCall);
-
-    const circles = g.selectAll('circle').data(data);
-    circles
-      .enter()
-      .append('circle')
-      .attr('class', 'circle')
-      .attr('fill', '#ffff33')
-      .attr('stroke', '#000000')
-      .attr('stroke-width', '1')
-      .on('mouseover', tip.show)
-      .on('mouseout', tip.hide)
-      .attr('cx', (d) => x(d[date]))
-      .attr('cy', (d) => y(d[sales]))
-      .attr('r', 6);
+    return data.filter((movie) => movie[date]);
   });
+
+function buildViz() {
+  const minDate = parseTime('January 1, 1970');
+  const maxDate = d3.max(movieData, (d) => d[date]);
+  const minSales = d3.min(movieData, (d) => d[sales]);
+  const maxSales = d3.max(movieData, (d) => d[sales]);
+  const x = d3.scaleTime().domain([minDate, maxDate]).range([0, width]);
+  const y = d3
+    .scaleLog()
+    .domain([70000000, maxSales])
+    .range([height, 0])
+    .base(10);
+
+  const salesRangeLow = g
+    .append('rect')
+    .attr('width', width)
+    .attr('height', height - y(200000000))
+    .attr('x', 0)
+    .attr('y', y(200000000))
+    .attr('fill', '#f7f7f7');
+
+  const salesRangeMid = g
+    .append('rect')
+    .attr('width', width)
+    .attr('height', y(200000000) - y(1000000000))
+    .attr('x', 0)
+    .attr('y', y(1000000000))
+    .attr('fill', '#cccccc');
+
+  const salesRangeHigh = g
+    .append('rect')
+    .attr('width', width)
+    .attr('height', y(1000000000))
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('fill', '#969696');
+
+  const xAxisCall = d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%Y'));
+
+  g.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${height})`)
+    .call(xAxisCall);
+
+  const yAxisCall = d3
+    .axisLeft(y)
+    .ticks(10)
+    .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
+
+  g.append('g').attr('class', 'y axis').call(yAxisCall);
+
+  const posterRects = g.selectAll('rect').data(movieData);
+  posterRects
+    .enter()
+    .append('rect')
+    .attr('width', '10')
+    .attr('height', '15')
+    .attr('x', (d) => x(d[date]))
+    .attr('y', (d) => y(d[sales]))
+    .attr('class', 'poster')
+    .attr('fill', '#666666')
+    .attr('stroke', '#000000')
+    .attr('stroke-width', '1px');
+
+  const images = g.selectAll('image').data(movieData);
+  images
+    .enter()
+    .append('svg:image')
+    .attr('xlink:href', (d) => d.posterURL)
+    .attr('x', (d) => x(d[date]))
+    .attr('y', (d) => y(d[sales]))
+    .attr('class', 'poster')
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
+    .attr('width', '10')
+    .attr('height', '15');
+}
+
+async function init() {
+  movieData = await d3CSV;
+  buildViz();
+}
+
+//using this setTimeout to manage async issue for now
+// I think I need to separate out the requests for images into a Promise.all
+setTimeout(init, 2000);

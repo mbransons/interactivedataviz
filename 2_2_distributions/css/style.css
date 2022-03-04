@@ -2,6 +2,7 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
   font-size: 16px;
   padding: 1em;
+  /* background-color: #f6b4b4; */
 }
 
 h1 {
@@ -21,4 +22,12 @@ p {
 #chart-area {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.poster {
+  transform: translate(-5px, -7px);
+}
+
+.box--tip {
+  transform: scale(0.8) translateY(12%);
 }
