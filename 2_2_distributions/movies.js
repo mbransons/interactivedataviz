@@ -99,7 +99,7 @@ const tip = d3
   .attr('class', 'd3-tip')
   .html((event, d) => {
     let div = `<div class="box box--tip p-3">
-    <article class="columns is-gapless">
+    <article class="columns is-gapless is-mobile">
       <div class="column is-4 mr-2">
         <figure class="image">
         <img src=${d.posterURL}>
