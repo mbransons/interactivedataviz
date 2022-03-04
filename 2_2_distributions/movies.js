@@ -2,9 +2,9 @@
 const apiKey = 'f7f9fe195f863c63a5e2f42428f3c16b';
 
 /* CONSTANTS AND GLOBALS */
-const margin = { left: 80, right: 10, top: 100, bottom: 70 };
+const margin = { left: 80, right: 100, top: 70, bottom: 70 };
 const width = 900 - margin.left - margin.right;
-const height = 700 - margin.top - margin.bottom;
+const height = 600 - margin.top - margin.bottom;
 const svg = d3
   .select('#chart-area')
   .append('svg')
@@ -98,28 +98,28 @@ const tip = d3
   .tip()
   .attr('class', 'd3-tip')
   .html((event, d) => {
-    let div = `<div class="box box--tip">
-    <article class="media">
-      <div class="media-left">
+    let div = `<div class="box box--tip p-3">
+    <article class="columns is-gapless">
+      <div class="column is-4 mr-2">
         <figure class="image">
         <img src=${d.posterURL}>
         </figure>
       </div>
-      <div class="media-content">
+      <div class="column is-8">
         <div class="content">
         <table>
         <tbody>
           <tr>
-            <td class="p-1 has-text-weight-semibold is-uppercase">${parseTitle(
+            <td class="p-1 has-text-weight-semibold is-uppercase is-size-7">${parseTitle(
               d[title]
             )}
             </td>
           </tr>
           <tr>
-            <td class="p-1">${formatTime(d[date])} </td>
+            <td class="p-1 is-size-7">${formatTime(d[date])} </td>
           </tr>
           <tr>
-            <td class="p-1">${d3
+            <td class="p-1 is-size-7">${d3
               .format('$,.3s')(d[sales])
               .replace(/G/, 'B')}</td>
           </tr>
@@ -162,14 +162,17 @@ const d3CSV = d3
   });
 
 function buildViz() {
-  const minDate = parseTime('January 1, 1970');
+  const minDate = d3.min(movieData, (d) => d[date]);
   const maxDate = d3.max(movieData, (d) => d[date]);
   const minSales = d3.min(movieData, (d) => d[sales]);
   const maxSales = d3.max(movieData, (d) => d[sales]);
-  const x = d3.scaleTime().domain([minDate, maxDate]).range([0, width]);
+  const x = d3
+    .scaleTime()
+    .domain([minDate / 1.5, maxDate * 1.02])
+    .range([0, width]);
   const y = d3
     .scaleLog()
-    .domain([70000000, maxSales])
+    .domain([minSales / 1.25, maxSales * 1.25])
     .range([height, 0])
     .base(10);
 
@@ -179,7 +182,7 @@ function buildViz() {
     .attr('height', height - y(200000000))
     .attr('x', 0)
     .attr('y', y(200000000))
-    .attr('fill', '#f7f7f7');
+    .attr('fill', '#969696');
 
   const salesRangeMid = g
     .append('rect')
@@ -195,7 +198,7 @@ function buildViz() {
     .attr('height', y(1000000000))
     .attr('x', 0)
     .attr('y', 0)
-    .attr('fill', '#969696');
+    .attr('fill', '#f7f7f7');
 
   const xAxisCall = d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%Y'));
 

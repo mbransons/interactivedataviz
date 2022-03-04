@@ -1,6 +1,6 @@
 /* CONSTANTS AND GLOBALS */
 const margin = { left: 80, right: 10, top: 100, bottom: 70 };
-const width = 600 - margin.left - margin.right;
+const width = 700 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const c = d3
   .scaleOrdinal()
