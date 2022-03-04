@@ -77,7 +77,7 @@ const parseGenres = (str) => {
   let regexp = /'([^']*)'/g;
   return Array.from(str.matchAll(regexp), (m) => m[1]);
 };
-let posterURL;
+
 //pass a random actor to search(actor) function
 async function search(movie) {
   return await axios
@@ -89,10 +89,6 @@ async function search(movie) {
     .then((movie) => {
       return `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
     });
-}
-
-async function setURL(movie) {
-  posterURL = await search(movie);
 }
 
 //ToolTip
@@ -136,17 +132,9 @@ const tip = d3
 
 g.call(tip);
 
-async function tipShow(event, d) {
-  // await search(parseTitle(d[title]));
-  tip.show(event, d);
-}
-
-let movieData;
-
-let movieDataWithURLs;
-
 d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
   .then((data) => {
+    //parse time, genres Array, and make async request for poster images
     data.forEach((movie) => {
       movie[date] = parseTime(movie[date]);
       movie[genre] = parseGenres(movie[genre]);
@@ -155,6 +143,7 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
     return data;
   })
   .then((data) => {
+    // reset posterURL from the promise value to the returned value
     return data.map((movie) => {
       movie.posterURL.then((url) => {
         movie.posterURL = url;
@@ -163,19 +152,14 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
     });
   })
   .then((data) => {
-    const dataFix = data.filter((movie) => movie[date]);
-    console.log(dataFix);
+    //filter out movies without release date
+    data = data.filter((movie) => movie[date]);
+
     /* SCALES */
-    //   const minDate = d3.min(dataFix, (d) => d[date]);
     const minDate = parseTime('January 1, 1970');
-    const maxDate = d3.max(dataFix, (d) => d[date]);
-    const minSales = d3.min(dataFix, (d) => d[sales]);
-    const maxSales = d3.max(dataFix, (d) => d[sales]);
-    console.log(`
-  minDate: ${minDate} 
-  maxDate: ${maxDate}
-  minSales: ${minSales}
-  maxSales: ${maxSales}`);
+    const maxDate = d3.max(data, (d) => d[date]);
+    const minSales = d3.min(data, (d) => d[sales]);
+    const maxSales = d3.max(data, (d) => d[sales]);
     const x = d3.scaleTime().domain([minDate, maxDate]).range([0, width]);
     const y = d3
       .scaleLog()
@@ -198,7 +182,7 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
       .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
     g.append('g').attr('class', 'y axis').call(yAxisCall);
 
-    const circles = g.selectAll('circle').data(dataFix);
+    const circles = g.selectAll('circle').data(data);
     circles
       .enter()
       .append('circle')
@@ -212,16 +196,3 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
       .attr('cy', (d) => y(d[sales]))
       .attr('r', 6);
   });
-
-/* LOAD DATA */
-// d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType).then((data) => {
-//   movieData = data;
-//   movieData.forEach((movie) => {
-//     movie[date] = parseTime(movie[date]);
-//     movie[genre] = parseGenres(movie[genre]);
-//     movie.posterURL = search(parseTitle(movie[title]));
-//   });
-//   // next date to add is 129
-//   // removes movies without premiere date
-
-// });
