@@ -87,7 +87,9 @@ async function search(movie) {
     .then((res) => res.data)
     .then((data) => data.results[0])
     .then((movie) => {
-      return `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
+      return !movie.poster_path
+        ? 'img/no-poster-movie.png'
+        : `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
     });
 }
 
