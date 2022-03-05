@@ -251,6 +251,7 @@ async function init() {
 setTimeout(init, 2000);
 
 // Inflation API to allow option to adjust the gross values by inflation
+// https://www.statbureau.org/en/inflation-api
 // to be used for a future version
 const res = axios
   .get(
