@@ -2,7 +2,7 @@
 const apiKey = 'f7f9fe195f863c63a5e2f42428f3c16b';
 
 /* CONSTANTS AND GLOBALS */
-const margin = { left: 80, right: 100, top: 70, bottom: 70 };
+const margin = { left: 80, right: 100, top: 70, bottom: 50 };
 const width = 900 - margin.left - margin.right;
 const height = 600 - margin.top - margin.bottom;
 const svg = d3

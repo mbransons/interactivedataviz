@@ -9,7 +9,51 @@
 </head>
 
 <body>
-  <div id="chart-area"> </div>
+  <div class="container is-widescreen">
+    <div class="columns">
+      <div class="column is-full">
+        <div id="chart-area"></div>
+        <div class="columns">
+          <div class="column is-5 is-offset-1">
+            <div class="content">
+              <h3>Notes</h3>
+              <p>This chart uses a base(10) logarithmic scale to give some additional visual distribution of the films
+                on the y-axis. Hovering on images reveals a tool-tip with a larger poster image and specific data about
+                the film.</p>
+              <p>Also this is my first experiment using svg images with the d3 library. There are issues to be resolved
+                regarding asynchronus requests for data. Movie titles from the CSV of Kaggle film data are used to
+                subsequently make requests to The Movie Database. There's presently an artifiical time set at two
+                seconds before building the visualization to allow the request to complete.</p>
+              <p>In the future, when working with asynchronus requests I'm planning on using a <code>Promise.all</code>
+                to gather the d3 data promise and API requests' returned promises, before building the chart.</p>
+              <p>This work will help with future plans to mine movie SRT files and to study word usage in popular films
+                and
+                build visualizations similar to "<a href="https://pudding.cool/2017/02/vocabulary/index.html">The
+                  Largest Vocabulary in Hip Hop</a>."</p>
+            </div>
+          </div>
+          <div class="column is-5">
+            <div class="content">
+              <h3>References</h3>
+              <ul>
+                <li>Data from <a href="https://www.kaggle.com/sanjeetsinghnaik">Sanjeet Singh Naik</a> via <a
+                    href="https://www.kaggle.com/sanjeetsinghnaik/top-1000-highest-grossing-movies">Kaggle</a>.</li>
+                <li>Movie poster images generated with <a
+                    href="https://developers.themoviedb.org/3/getting-started/introduction">The Movie Database API</a>
+                  using the
+                  <code><a href="https://developers.themoviedb.org/3/search/search-movies">search/movie</a></code>
+                  endpoint.
+                </li>
+                <li>Tool tips built using <code><a href="https://github.com/caged/d3-tip">caged / d3-tip</a></code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.0/axios.min.js"></script>
   <script src="../lib/d3.min.7.2.js"></script>
   <script src="../lib/d3-v6-tip.js"></script>
