@@ -249,3 +249,23 @@ async function init() {
 //using this setTimeout to manage async issue for now
 // I think I need to separate out the requests for images into a Promise.all
 setTimeout(init, 2000);
+
+// Inflation API to allow option to adjust the gross values by inflation
+// to be used for a future version
+const res = axios
+  .get(
+    'https://www.statbureau.org/calculate-inflation-price-jsonp?jsoncallback=?',
+    {
+      params: {
+        country: 'united-states',
+        start: parseTime('January 1, 1975'),
+        end: new Date(),
+        amount: 100000000,
+        format: true,
+      },
+    }
+  )
+  .then((res) => res.data)
+  .then((val) => val.slice(4, val.length - 2))
+  .then((val) => Number(val.replaceAll(' ', '')));
+// country=unitedstates&start=
