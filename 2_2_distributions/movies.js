@@ -258,9 +258,9 @@ const res = axios
     {
       params: {
         country: 'united-states',
-        start: parseTime('January 1, 1975'),
+        start: parseTime('March 25, 1977'),
         end: new Date(),
-        amount: 100000000,
+        amount: 775000000,
         format: true,
       },
     }
@@ -268,4 +268,3 @@ const res = axios
   .then((res) => res.data)
   .then((val) => val.slice(4, val.length - 2))
   .then((val) => Number(val.replaceAll(' ', '')));
-// country=unitedstates&start=
