@@ -1,12 +1,12 @@
-/* CONSTANTS AND GLOBALS */
-const margin = { left: 80, right: 10, top: 100, bottom: 70 };
+// set margins, width/height
+const margin = { left: 80, right: 10, top: 50, bottom: 70 };
 const width = 600 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
-const c = d3
-  .scaleOrdinal()
-  .domain(['R', 'D', 'I'])
-  .range(['#e41a1c', '#377eb8', '#ffff33']);
+const height = 400 - margin.top - margin.bottom;
 
+// declare data variable to assign value after data call
+let data;
+
+// use viewBox rather than x and y values so that a aspect ratio is set and the visualization can be responsively scaled
 const svg = d3
   .select('#chart-area')
   .append('svg')
@@ -17,22 +17,98 @@ const svg = d3
     }`
   );
 
+// Visualization
+// offset a group based on margins so that height and width can be used when building scales
 const g = svg
   .append('g')
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+//Scales
+// Initially set ranges based on the visualization width/height
+const x = d3.scaleTime().range([0, width]);
+const y = d3.scaleLinear().range([height, 0]);
+
+// Labels
+// Title top-center
+const chartTitle = g
+  .append('text')
+  .attr('class', 'x axis-label')
+  .attr('x', width / 2)
+  .attr('y', -10)
+  .attr('font-size', '15px')
+  .attr('font-family', 'sans-serif')
+  .attr('text-anchor', 'middle')
+  .text('Country population data');
+
+// Legend Group bottom-right
+const legend = g
+  .append('g')
+  .attr('transform', `translate(${width - 10}, ${height - 150})`);
+
+// X Axis bottom-center
+const xLabel = g
+  .append('text')
+  .attr('class', 'x axis-label')
+  .attr('x', width / 2)
+  .attr('y', height + 50)
+  .attr('font-size', '10px')
+  .attr('font-family', 'sans-serif')
+  .attr('text-anchor', 'middle')
+  .text('Year');
+
+// Y Axis label left-center-rotated
+const yLabel = g
+  .append('text')
+  .attr('class', 'y axis-label')
+  .attr('x', -(height / 2))
+  .attr('y', -60)
+  .attr('font-size', '10px')
+  .attr('font-family', 'sans-serif')
+  .attr('text-anchor', 'middle')
+  .attr('transform', 'rotate(-90)')
+  .text('Population');
+
+// Parsing tools
 const parseYear = d3.timeParse('%Y');
 const formatTime = d3.timeFormat('%Y');
 const formatPop = d3.format('.3s');
-/* LOAD DATA */
+
+// Call Data
 d3.csv('../data/populationOverTime.csv', (d) => {
   return {
     year: parseYear(d.Year),
     country: d.Entity,
     population: +d.Population,
   };
-}).then((data) => {
-  console.log('data :>> ', data);
+}).then((d) => {
+  data = d;
+
+  // set domains to your scales
+  x.domain(d3.extent(data, (d) => d.year));
+  y.domain(d3.extent(data, (d) => d.population));
+
+  // Axis generators
+  // X Axis
+  const xAxisCall = d3
+    .axisBottom(x)
+    .ticks(10)
+    .tickFormat((d) => formatTime(d));
+  g.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${height})`)
+    .call(xAxisCall);
+
+  //Y Axis
+  const yAxisCall = d3
+    .axisLeft(y)
+    .ticks(10)
+    .tickFormat((d) => formatPop(d).replace(/G/, 'B'));
+  g.append('g').attr('class', 'y axis').call(yAxisCall);
+
   let curr, obj;
+  // reduces data returning a new array of objects one per country
+  // sample object structure
+  // {country: name, data: [{year: date Obj, population: num}, {}, {}]}
   const sort = data.reduce((acc, val) => {
     if (curr === val.country) {
       acc
@@ -54,31 +130,6 @@ d3.csv('../data/populationOverTime.csv', (d) => {
     }
     return acc;
   }, []);
-  /* SCALES */
-  const x = d3
-    .scaleTime()
-    .domain(d3.extent(data, (d) => d.year))
-    .range([0, width]);
-
-  const y = d3
-    .scaleLinear()
-    .domain(d3.extent(data, (d) => d.population))
-    .range([height, 0]);
-
-  const xAxisCall = d3
-    .axisBottom(x)
-    .ticks(10)
-    .tickFormat((d) => formatTime(d));
-  g.append('g')
-    .attr('class', 'x axis')
-    .attr('transform', `translate(0, ${height})`)
-    .call(xAxisCall);
-
-  const yAxisCall = d3
-    .axisLeft(y)
-    .ticks(10)
-    .tickFormat((d) => formatPop(d).replace(/G/, 'B'));
-  g.append('g').attr('class', 'y axis').call(yAxisCall);
 
   const line = d3
     .line()
@@ -92,4 +143,5 @@ d3.csv('../data/populationOverTime.csv', (d) => {
       .attr('stroke', 'blue')
       .attr('d', line(country.data));
   });
+  data = sort;
 });
