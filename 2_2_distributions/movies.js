@@ -1,10 +1,15 @@
 // data source https://www.kaggle.com/sanjeetsinghnaik/top-1000-highest-grossing-movies/version/1
 const apiKey = 'f7f9fe195f863c63a5e2f42428f3c16b';
 
-/* CONSTANTS AND GLOBALS */
+// set margins, width/height
 const margin = { left: 80, right: 100, top: 70, bottom: 50 };
 const width = 900 - margin.left - margin.right;
 const height = 600 - margin.top - margin.bottom;
+
+// declare data variable to assign value after data call
+let movieData;
+
+// use viewBox rather than x and y values so that a aspect ratio is set and the visualization can be responsively scaled
 const svg = d3
   .select('#chart-area')
   .append('svg')
@@ -15,10 +20,19 @@ const svg = d3
     }`
   );
 
+// Visualization
+// offset a group based on margins so that height and width can be used when building scales
 const g = svg
   .append('g')
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+//Scales
+// Initially set ranges based on the visualization width/height
+const x = d3.scaleTime().range([0, width]);
+const y = d3.scaleLog().range([height, 0]).base(10);
+
 // Labels
+// Title top-center
 const chartTitle = g
   .append('text')
   .attr('class', 'x axis-label title')
@@ -29,6 +43,7 @@ const chartTitle = g
   .attr('text-anchor', 'middle')
   .text('Top Grossing Hollywood Films');
 
+// X Axis bottom-center
 const xLabel = g
   .append('text')
   .attr('class', 'x axis-label')
@@ -39,6 +54,7 @@ const xLabel = g
   .attr('text-anchor', 'middle')
   .text('Year');
 
+// Y Axis label left-center-rotated
 const yLabel = g
   .append('text')
   .attr('class', 'y axis-label')
@@ -78,7 +94,7 @@ const parseGenres = (str) => {
   return Array.from(str.matchAll(regexp), (m) => m[1]);
 };
 
-//pass a random actor to search(actor) function
+//request to movie database to search for movie
 async function search(movie) {
   return await axios
     .get(
@@ -134,15 +150,17 @@ const tip = d3
 
 g.call(tip);
 
-let movieData;
-
+// call data and save promise value to variable
 const d3CSV = d3
   .csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
   .then((data) => {
-    //parse time, genres Array, and make async request for poster images
     data.forEach((movie) => {
+      // parse time
       movie[date] = parseTime(movie[date]);
+      // parse genres Array (not used yet)
       movie[genre] = parseGenres(movie[genre]);
+      // make async request for poster images
+      // in the future this needs to be set in a set of promise calls that can be attached to a promiseAll
       movie.posterPromise = search(parseTitle(movie[title]));
     });
     return data;
@@ -157,25 +175,37 @@ const d3CSV = d3
     });
   })
   .then((data) => {
-    //filter out movies without release date
+    //filter out movies without a release date
     return data.filter((movie) => movie[date]);
   });
 
 function buildViz() {
+  // set min/max values from data set
   const minDate = d3.min(movieData, (d) => d[date]);
   const maxDate = d3.max(movieData, (d) => d[date]);
   const minSales = d3.min(movieData, (d) => d[sales]);
   const maxSales = d3.max(movieData, (d) => d[sales]);
-  const x = d3
-    .scaleTime()
-    .domain([minDate / 1.5, maxDate * 1.02])
-    .range([0, width]);
-  const y = d3
-    .scaleLog()
-    .domain([minSales / 1.25, maxSales * 1.25])
-    .range([height, 0])
-    .base(10);
 
+  // set domains to your scales
+  x.domain([minDate / 1.5, maxDate * 1.02]);
+  y.domain([minSales / 1.25, maxSales * 1.25]);
+
+  // Axis generator
+  // X Axis
+  const xAxisCall = d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%Y'));
+  g.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${height})`)
+    .call(xAxisCall);
+
+  //Y Axis
+  const yAxisCall = d3
+    .axisLeft(y)
+    .ticks(10)
+    .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
+  g.append('g').attr('class', 'y axis').call(yAxisCall);
+
+  // shade sales domains in chart background
   const salesRangeLow = g
     .append('rect')
     .attr('width', width)
@@ -200,20 +230,8 @@ function buildViz() {
     .attr('y', 0)
     .attr('fill', '#f7f7f7');
 
-  const xAxisCall = d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%Y'));
-
-  g.append('g')
-    .attr('class', 'x axis')
-    .attr('transform', `translate(0, ${height})`)
-    .call(xAxisCall);
-
-  const yAxisCall = d3
-    .axisLeft(y)
-    .ticks(10)
-    .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
-
-  g.append('g').attr('class', 'y axis').call(yAxisCall);
-
+  // create els and attach data
+  // background rectangles while awaiting poster image
   const posterRects = g.selectAll('rect').data(movieData);
   posterRects
     .enter()
@@ -227,6 +245,7 @@ function buildViz() {
     .attr('stroke', '#000000')
     .attr('stroke-width', '1px');
 
+  // poster images called from data and set to SVG
   const images = g.selectAll('image').data(movieData);
   images
     .enter()
