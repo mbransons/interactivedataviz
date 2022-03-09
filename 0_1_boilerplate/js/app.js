@@ -76,20 +76,6 @@ const yLabel = g
   .attr('transform', 'rotate(-90)')
   .text('Y-Axis Label');
 
-// Axis generator
-// move to data call or update function if needs to be based on data
-// X Axis
-const xAxisCall = d3.axisBottom(x).ticks(3).tickFormat(d3.format('$,.2r'));
-g.append('g')
-  .attr('class', 'x axis')
-  .attr('transform', `translate(0, ${height})`)
-  .call(xAxisCall);
-
-//Y Axis
-const yAxisCall = d3.axisLeft(y).ticks(3);
-// .tickFormat((d) => d + ' years');
-g.append('g').attr('class', 'y axis').call(yAxisCall);
-
 // call data
 d3.json('data/data.json').then((d) => {
   console.log(d);
@@ -98,7 +84,14 @@ d3.json('data/data.json').then((d) => {
 
   // set min/max values from data set
   // or set in update function
-  let xMin, xMax, yMin, yMax, cMin, cMax, rMin, rMax;
+  let xMin = 0, // use d3 min/max functiosn
+    xMax = 100,
+    yMin = 0,
+    yMax = 100,
+    cMin,
+    cMax,
+    rMin,
+    rMax;
 
   // set domains to your scales
   // or set in update function
@@ -106,6 +99,21 @@ d3.json('data/data.json').then((d) => {
   y.domain([yMin, yMax]);
   c.domain([cMin, cMax]);
   r.domain([Math.sqrt(rMin / Math.PI), Math.sqrt(rMax / Math.PI)]);
+
+  // Axis generators
+  // X Axis
+  const xAxisCall = d3.axisBottom(x).ticks(3).tickFormat(d3.format('$,.2r'));
+  g.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${height})`)
+    .call(xAxisCall);
+
+  //Y Axis
+  const yAxisCall = d3
+    .axisLeft(y)
+    .ticks(3)
+    .tickFormat((d) => d + ' years');
+  g.append('g').attr('class', 'y axis').call(yAxisCall);
 
   // if dynamic use update function for data changes
   // update(data);
