@@ -86,10 +86,8 @@ g.append('g')
   .call(xAxisCall);
 
 //Y Axis
-const yAxisCall = d3
-  .axisLeft(y)
-  .ticks(3)
-  .tickFormat((d) => d + ' years');
+const yAxisCall = d3.axisLeft(y).ticks(3);
+// .tickFormat((d) => d + ' years');
 g.append('g').attr('class', 'y axis').call(yAxisCall);
 
 // call data
