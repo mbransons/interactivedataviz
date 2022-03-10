@@ -34,8 +34,11 @@ Promise.all([
 ]).then(([geojson, capitals]) => {
   // SPECIFY PROJECTION
   projection.fitSize([width, height], geojson);
+
   // DEFINE PATH FUNCTION
   const path = d3.geoPath(projection);
+
   // APPEND GEOJSON PATH
+
   // APPEND DATA AS SHAPE
 });
