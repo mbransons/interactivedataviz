@@ -45,15 +45,42 @@ d3.json('../data/environmentRatings.json', d3.autoType).then((data) => {
     .tickFormat((d) => d);
   g.append('g').attr('class', 'y axis').call(yAxisCall);
 
+  const t = d3.transition().duration(1000).delay(500);
+
   const circles = g.selectAll('circle').data(data);
+
+  // join version
+  // circles.join((enter) =>
+  //   enter
+  //     .append('circle')
+  //     .attr('class', 'circle')
+  //     .attr('fill', '#000000')
+  //     .attr('stroke', '#000000')
+  //     .attr('stroke-width', '1')
+  //     .attr('cx', 0)
+  //     .attr('cy', height)
+  //     .attr('r', 1)
+  //     .transition(t)
+  //     .attr('fill', (d) => c(d.Party))
+  //     .attr('r', 6)
+  //     .attr('cx', (d) => x(d.envScore2020))
+  //     .attr('cy', (d) => y(d.ideologyScore2020))
+  // );
+
+  // separate enter call version
   circles
     .enter()
     .append('circle')
     .attr('class', 'circle')
-    .attr('fill', (d) => c(d.Party))
+    .attr('fill', '#000000')
     .attr('stroke', '#000000')
     .attr('stroke-width', '1')
+    .attr('cx', 0)
+    .attr('cy', height)
+    .attr('r', 1)
+    .transition(t)
+    .attr('fill', (d) => c(d.Party))
+    .attr('r', 6)
     .attr('cx', (d) => x(d.envScore2020))
-    .attr('cy', (d) => y(d.ideologyScore2020))
-    .attr('r', 6);
+    .attr('cy', (d) => y(d.ideologyScore2020));
 });
