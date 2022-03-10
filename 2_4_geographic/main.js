@@ -1,5 +1,5 @@
 // set margins, width/height
-const margin = { left: 100, right: 20, top: 100, bottom: 50 };
+const margin = { left: 100, right: 100, top: 0, bottom: 0 };
 const width = 800 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
@@ -40,5 +40,26 @@ Promise.all([
 
   // APPEND GEOJSON PATH
 
+  const states = g
+    .selectAll('path.states')
+    .data(geojson.features)
+    .join('path')
+    .attr('class', 'states')
+    .attr('stroke', 'black')
+    .attr('stroke-width', '1px')
+    .attr('fill', 'transparent')
+    .attr('d', (d) => path(d));
+
   // APPEND DATA AS SHAPE
+
+  const capitalPoint = g
+    .selectAll('circle')
+    .data(capitals)
+    .join('circle')
+    .attr('r', 1.5)
+    .attr('fill', 'red')
+    .attr('transform', (d) => {
+      const [x, y] = projection([d.longitude, d.latitude]);
+      return `translate(${x}, ${y})`;
+    });
 });
