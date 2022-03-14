@@ -46,8 +46,9 @@ Promise.all([
     .join('path')
     .attr('class', 'states')
     .attr('stroke', 'black')
-    .attr('stroke-width', '1px')
+    .attr('stroke-width', 0.5)
     .attr('fill', 'transparent')
+    .attr('id', (d) => d.properties.NAME)
     .attr('d', (d) => path(d));
 
   // APPEND DATA AS SHAPE

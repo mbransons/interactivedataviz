@@ -7,7 +7,7 @@ const width = 900 - margin.left - margin.right;
 const height = 600 - margin.top - margin.bottom;
 
 // declare data variable to assign value after data call
-let movieData;
+let movies;
 
 // use viewBox rather than x and y values so that a aspect ratio is set and the visualization can be responsively scaled
 const svg = d3
@@ -96,16 +96,17 @@ const parseGenres = (str) => {
 
 //request to movie database to search for movie
 async function search(movie) {
+  let movieTitle = parseTitle(movie.Title);
   return await axios
     .get(
-      `https://api.themoviedb.org/3/search/movie?api_key=f7f9fe195f863c63a5e2f42428f3c16b&language=en-US&query=${movie}&page=1&include_adult=false`
+      `https://api.themoviedb.org/3/search/movie?api_key=f7f9fe195f863c63a5e2f42428f3c16b&language=en-US&query=${movieTitle}&page=1&include_adult=false`
     )
     .then((res) => res.data)
     .then((data) => data.results[0])
-    .then((movie) => {
-      return !movie.poster_path
+    .then((data) => {
+      return !data.poster_path
         ? 'img/no-poster-movie.png'
-        : `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
+        : `https://image.tmdb.org/t/p/w92${data.poster_path}`;
     });
 }
 
@@ -150,9 +151,15 @@ const tip = d3
 
 g.call(tip);
 
-// call data and save promise value to variable
-const d3CSV = d3
-  .csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
+// An asynchronous function to return each search promise to an array
+// via https://stackoverflow.com/questions/57979376/multiple-api-calls-with-fetch-in-chain-and-promise-all
+async function fetchMoreData(movies) {
+  const promises = movies.map((movie) => search(movie));
+  return await Promise.all(promises);
+}
+
+// call data
+d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
   .then((data) => {
     data.forEach((movie) => {
       // parse time
@@ -161,113 +168,105 @@ const d3CSV = d3
       movie[genre] = parseGenres(movie[genre]);
       // make async request for poster images
       // in the future this needs to be set in a set of promise calls that can be attached to a promiseAll
-      movie.posterPromise = search(parseTitle(movie[title]));
     });
+    data = data.filter((movie) => movie[date]);
     return data;
   })
   .then((data) => {
-    // reset posterURL from the promise value to the returned value
-    return data.map((movie) => {
-      movie.posterPromise.then((url) => {
-        movie.posterURL = url;
-      });
+    const promise = fetchMoreData(data);
+    return Promise.all([data, promise]);
+  })
+  .then(([movies, posters]) => {
+    // set posterURL from the promise value to the returned value
+    return movies.map((movie, i) => {
+      movie.posterURL = posters[i];
       return movie;
     });
   })
-  .then((data) => {
-    //filter out movies without a release date
-    return data.filter((movie) => movie[date]);
+  .then((movieData) => {
+    movies = movieData;
+    // set min/max values from data set
+    const minDate = d3.min(movieData, (d) => d[date]);
+    const maxDate = d3.max(movieData, (d) => d[date]);
+    const minSales = d3.min(movieData, (d) => d[sales]);
+    const maxSales = d3.max(movieData, (d) => d[sales]);
+
+    // set domains to your scales
+    x.domain([minDate / 1.5, maxDate * 1.02]);
+    y.domain([minSales / 1.25, maxSales * 1.25]);
+
+    // Axis generator
+    // X Axis
+    const xAxisCall = d3
+      .axisBottom(x)
+      .ticks(10)
+      .tickFormat(d3.timeFormat('%Y'));
+    g.append('g')
+      .attr('class', 'x axis')
+      .attr('transform', `translate(0, ${height})`)
+      .call(xAxisCall);
+
+    //Y Axis
+    const yAxisCall = d3
+      .axisLeft(y)
+      .ticks(10)
+      .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
+    g.append('g').attr('class', 'y axis').call(yAxisCall);
+
+    // shade sales domains in chart background
+    const salesRangeLow = g
+      .append('rect')
+      .attr('width', width)
+      .attr('height', height - y(200000000))
+      .attr('x', 0)
+      .attr('y', y(200000000))
+      .attr('fill', '#969696');
+
+    const salesRangeMid = g
+      .append('rect')
+      .attr('width', width)
+      .attr('height', y(200000000) - y(1000000000))
+      .attr('x', 0)
+      .attr('y', y(1000000000))
+      .attr('fill', '#cccccc');
+
+    const salesRangeHigh = g
+      .append('rect')
+      .attr('width', width)
+      .attr('height', y(1000000000))
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('fill', '#f7f7f7');
+
+    // create els and attach data
+    // background rectangles while awaiting poster image
+    const posterRects = g.selectAll('rect').data(movieData);
+    posterRects
+      .enter()
+      .append('rect')
+      .attr('width', '10')
+      .attr('height', '15')
+      .attr('x', (d) => x(d[date]))
+      .attr('y', (d) => y(d[sales]))
+      .attr('class', 'poster')
+      .attr('fill', '#666666')
+      .attr('stroke', '#000000')
+      .attr('stroke-width', '1px');
+
+    // poster images called from data and set to SVG
+    const images = g.selectAll('image').data(movieData);
+    images
+      .enter()
+      .append('svg:image')
+      .attr('xlink:href', (d) => d.posterURL)
+      .attr('x', (d) => x(d[date]))
+      .attr('y', (d) => y(d[sales]))
+      .attr('class', 'poster')
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      .attr('width', '10')
+      .attr('height', '15');
   });
-
-function buildViz() {
-  // set min/max values from data set
-  const minDate = d3.min(movieData, (d) => d[date]);
-  const maxDate = d3.max(movieData, (d) => d[date]);
-  const minSales = d3.min(movieData, (d) => d[sales]);
-  const maxSales = d3.max(movieData, (d) => d[sales]);
-
-  // set domains to your scales
-  x.domain([minDate / 1.5, maxDate * 1.02]);
-  y.domain([minSales / 1.25, maxSales * 1.25]);
-
-  // Axis generator
-  // X Axis
-  const xAxisCall = d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%Y'));
-  g.append('g')
-    .attr('class', 'x axis')
-    .attr('transform', `translate(0, ${height})`)
-    .call(xAxisCall);
-
-  //Y Axis
-  const yAxisCall = d3
-    .axisLeft(y)
-    .ticks(10)
-    .tickFormat((d) => d3.format('$,.3s')(d).replace(/G/, 'B'));
-  g.append('g').attr('class', 'y axis').call(yAxisCall);
-
-  // shade sales domains in chart background
-  const salesRangeLow = g
-    .append('rect')
-    .attr('width', width)
-    .attr('height', height - y(200000000))
-    .attr('x', 0)
-    .attr('y', y(200000000))
-    .attr('fill', '#969696');
-
-  const salesRangeMid = g
-    .append('rect')
-    .attr('width', width)
-    .attr('height', y(200000000) - y(1000000000))
-    .attr('x', 0)
-    .attr('y', y(1000000000))
-    .attr('fill', '#cccccc');
-
-  const salesRangeHigh = g
-    .append('rect')
-    .attr('width', width)
-    .attr('height', y(1000000000))
-    .attr('x', 0)
-    .attr('y', 0)
-    .attr('fill', '#f7f7f7');
-
-  // create els and attach data
-  // background rectangles while awaiting poster image
-  const posterRects = g.selectAll('rect').data(movieData);
-  posterRects
-    .enter()
-    .append('rect')
-    .attr('width', '10')
-    .attr('height', '15')
-    .attr('x', (d) => x(d[date]))
-    .attr('y', (d) => y(d[sales]))
-    .attr('class', 'poster')
-    .attr('fill', '#666666')
-    .attr('stroke', '#000000')
-    .attr('stroke-width', '1px');
-
-  // poster images called from data and set to SVG
-  const images = g.selectAll('image').data(movieData);
-  images
-    .enter()
-    .append('svg:image')
-    .attr('xlink:href', (d) => d.posterURL)
-    .attr('x', (d) => x(d[date]))
-    .attr('y', (d) => y(d[sales]))
-    .attr('class', 'poster')
-    .on('mouseover', tip.show)
-    .on('mouseout', tip.hide)
-    .attr('width', '10')
-    .attr('height', '15');
-}
-
-async function init() {
-  movieData = await d3CSV;
-  buildViz();
-}
-
-//using this setTimeout to manage async issue for now
-// I think I need to separate out the requests for images into a Promise.all
-setTimeout(init, 2000);
 
 // Inflation API to allow option to adjust the gross values by inflation
 // https://www.statbureau.org/en/inflation-api

@@ -23,11 +23,6 @@ const g = svg
   .append('g')
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-//Scales
-// Initially set ranges based on the visualization width/height
-const x = d3.scaleTime().range([0, width]);
-const y = d3.scaleLinear().range([height, 0]);
-
 // Labels
 // Title top-center
 const chartTitle = g
@@ -68,6 +63,28 @@ const yLabel = g
   .attr('transform', 'rotate(-90)')
   .text('Population');
 
+//Scales
+// Initially set ranges based on the visualization width/height
+const x = d3.scaleTime().range([0, width]);
+const y = d3.scaleLinear().range([height, 0]);
+
+//Line Generator
+const line = d3
+  .line()
+  .x((d) => x(d.year))
+  .y((d) => y(d.population));
+
+const xAxisCall = d3
+  .axisBottom(x)
+  .ticks(10)
+  .tickFormat((d) => formatTime(d));
+
+//Y Axis
+const yAxisCall = d3
+  .axisLeft(y)
+  .ticks(10)
+  .tickFormat((d) => formatPop(d).replace(/G/, 'B'));
+
 // Parsing tools
 const parseYear = d3.timeParse('%Y');
 const formatTime = d3.timeFormat('%Y');
@@ -89,20 +106,12 @@ d3.csv('../data/populationOverTime.csv', (d) => {
 
   // Axis generators
   // X Axis
-  const xAxisCall = d3
-    .axisBottom(x)
-    .ticks(10)
-    .tickFormat((d) => formatTime(d));
+
   g.append('g')
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${height})`)
     .call(xAxisCall);
 
-  //Y Axis
-  const yAxisCall = d3
-    .axisLeft(y)
-    .ticks(10)
-    .tickFormat((d) => formatPop(d).replace(/G/, 'B'));
   g.append('g').attr('class', 'y axis').call(yAxisCall);
 
   let curr, obj;
@@ -130,11 +139,6 @@ d3.csv('../data/populationOverTime.csv', (d) => {
     }
     return acc;
   }, []);
-
-  const line = d3
-    .line()
-    .x((d) => x(d.year))
-    .y((d) => y(d.population));
 
   sort.forEach((country) => {
     g.append('path')
