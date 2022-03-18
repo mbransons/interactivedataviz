@@ -18,11 +18,9 @@ svg
 const g = svg.append('g');
 
 const projection = d3.geoAlbersUsa();
-const states = g
-  .append('g')
-  .attr('fill', '#ffffff98')
-  .attr('stroke', 'white')
-  .attr('stroke-width', 1);
+const states = g.append('g').attr('fill', '#ffffff98');
+// .attr('stroke', 'white')
+// .attr('stroke-width', 1);
 
 let us, path, selected, ufos, shapes, countries, filteredUfos;
 
@@ -52,7 +50,7 @@ const tip = d3
             <td class="p-1 is-size-6">${formatTime(d.datetime)} </td>
           </tr>
           <tr>
-            <td class="p-1 is-size-6">${d.comments}</td>
+            <td class="p-1 is-size-6 line-clamp line-clamp-5">${d.comments}</td>
           </tr>
         </tbody>
       </table>
