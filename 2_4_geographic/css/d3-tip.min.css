@@ -28,11 +28,11 @@
 }
 .d3-tip.n:after {
   content: '▼';
-  margin: -1px 0 0 0;
+  margin: -3px 0 0 0;
   top: 100%;
   left: 0;
   text-align: center;
-  transform: scale(4, 2);
+  transform: scale(2, 1.25);
 }
 .d3-tip.e:after {
   content: '◀';
