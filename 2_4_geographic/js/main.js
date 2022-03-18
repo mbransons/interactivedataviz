@@ -24,7 +24,11 @@ const states = g
   .attr('stroke', 'white')
   .attr('stroke-width', 1);
 
-let us, path, selected, ufos, shapes, countries;
+let us, path, selected, ufos, shapes, countries, filteredUfos;
+
+// parsing tools
+// '10/10/1949 20:30'
+const parseTime = d3.timeParse('%m/%d/%Y %H:%M');
 
 Promise.all([
   d3.json('../data/usState.json'),
@@ -35,10 +39,16 @@ Promise.all([
   shapes = new Set();
   countries = new Set();
   ufos.forEach((ufo) => {
+    ufo.datetime = parseTime(ufo.datetime);
+    ufo.longitude = ufo['longitude '];
     shapes.add(ufo.shape);
+  });
+  filteredUfos = ufos.filter((ufo) => {
+    return ufo.country === 'us' && ufo.datetime.getFullYear() === 2012;
+  });
+  filteredUfos.forEach((ufo) => {
     countries.add(ufo.country);
   });
-
   projection.fitSize([width, height], geojson);
   path = d3.geoPath(projection);
   states
@@ -54,12 +64,16 @@ Promise.all([
     .text((d) => d.properties.NAME)
     .attr('d', (d) => path(d));
 
-  g.append('path')
-    .attr('fill', 'none')
-    .attr('stroke', 'white')
-    .attr('stroke-width', 2)
-    .attr('stroke-linejoin', 'round')
-    .attr('d', (d) => path(d));
+  const ufoSighting = g
+    .selectAll('circle')
+    .data(filteredUfos)
+    .join('circle')
+    .attr('r', 1)
+    .attr('fill', 'black')
+    .attr('transform', (d) => {
+      const [x, y] = projection([d.longitude, d.latitude]);
+      return `translate(${x}, ${y})`;
+    });
 });
 
 function reset() {
