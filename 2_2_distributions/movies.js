@@ -159,7 +159,8 @@ async function fetchMoreData(movies) {
 }
 
 // call data
-d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
+const dataCall = d3
+  .csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
   .then((data) => {
     data.forEach((movie) => {
       // parse time
@@ -266,6 +267,7 @@ d3.csv('../data/highest-grossing-1000-movies.csv', d3.autoType)
       .on('mouseout', tip.hide)
       .attr('width', '10')
       .attr('height', '15');
+    return movieData;
   });
 
 // Inflation API to allow option to adjust the gross values by inflation

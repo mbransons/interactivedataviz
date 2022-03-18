@@ -1,7 +1,7 @@
 // set margins, width/height
-const margin = { left: 100, right: 100, top: 0, bottom: 0 };
-const width = 800 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
+const margin = { left: 0, right: 0, top: 0, bottom: 0 };
+const width = 975 - margin.left - margin.right;
+const height = 610 - margin.top - margin.bottom;
 
 // use viewBox rather than x and y values so that a aspect ratio is set and the visualization can be responsively scaled
 const svg = d3
