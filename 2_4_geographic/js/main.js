@@ -16,13 +16,15 @@ svg
   .on('click', reset);
 
 const g = svg.append('g');
-const select = d3.select('.select select');
+const select = d3.select('.select select').on('change', (d) => {
+  update(parseData(Number(select.property('value'))));
+});
 const projection = d3.geoAlbersUsa();
 const states = g.append('g').attr('fill', '#ffffff98');
 // .attr('stroke', 'white')
 // .attr('stroke-width', 1);
 
-let us, path, selected, ufos, shapes, countries, filteredUfos, years;
+let us, path, selected, ufos, shapes, countries, filteredUfos, years, options;
 
 // parsing tools
 // '10/10/1949 20:30'
@@ -87,19 +89,18 @@ Promise.all([
   // convert years to Array and sort
   years = Array.from(years).sort();
 
-  const options = select
+  // build option values into selector
+  options = select
     .selectAll('option')
     .data(years)
     .enter()
     .append('option')
     .text((d) => d);
 
-  function parseData(year) {
-    return (filteredUfos = filteredUfos.filter(
-      (ufo) => ufo.datetime.getFullYear() === year
-    ));
-  }
+  // set most recent year to selected value
+  options._groups[0][options._groups[0].length - 1].selected = 'selected';
 
+  // build USA projection
   projection.fitSize([width, height], geojson);
   path = d3.geoPath(projection);
   states
@@ -115,19 +116,34 @@ Promise.all([
     .text((d) => d.properties.NAME)
     .attr('d', (d) => path(d));
 
-  const ufoSighting = g
-    .selectAll('circle')
-    .data(parseData(2012))
-    .join('circle')
+  // set the sightings data to map
+  update(parseData(Number(select.property('value'))));
+});
+
+function parseData(year) {
+  return filteredUfos.filter((ufo) => ufo.datetime.getFullYear() === year);
+}
+
+function update(data) {
+  const t = d3.transition().duration(500);
+  const circles = g.selectAll('circle').data(data);
+
+  circles.exit().remove();
+
+  circles
+    .enter()
+    .append('circle')
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
+    .merge(circles)
+    .transition(t)
     .attr('r', 1)
     .attr('fill', 'black')
     .attr('transform', (d) => {
       const [x, y] = projection([d.longitude, d.latitude]);
       return `translate(${x}, ${y})`;
-    })
-    .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
-});
+    });
+}
 
 function reset() {
   states.selectAll('path').transition().style('fill', null);
