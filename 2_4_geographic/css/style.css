@@ -1,4 +1,4 @@
-body {
+.space-background {
   background-image: url(../img/space.jpg);
   background-size: cover;
   background-position: center center;
@@ -8,5 +8,5 @@ body {
 }
 
 .background {
-  fill: none;
+  fill: transparent;
 }

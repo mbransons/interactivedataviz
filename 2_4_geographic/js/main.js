@@ -20,11 +20,11 @@ const g = svg.append('g');
 const projection = d3.geoAlbersUsa();
 const states = g
   .append('g')
-  .attr('fill', '#444')
+  .attr('fill', '#ffffff98')
   .attr('stroke', 'white')
   .attr('stroke-width', 1);
 
-let us, path, selected, ufos;
+let us, path, selected, ufos, shapes, countries;
 
 Promise.all([
   d3.json('../data/usState.json'),
@@ -32,9 +32,13 @@ Promise.all([
 ]).then(([geojson, ufoData]) => {
   us = geojson;
   ufos = ufoData;
-  const types = new Set();
-  ufos.forEach((ufo) => types.add(ufo.shape));
-  console.log(types);
+  shapes = new Set();
+  countries = new Set();
+  ufos.forEach((ufo) => {
+    shapes.add(ufo.shape);
+    countries.add(ufo.country);
+  });
+
   projection.fitSize([width, height], geojson);
   path = d3.geoPath(projection);
   states
@@ -72,14 +76,13 @@ function reset() {
 }
 
 function clicked(event, d) {
-  console.log(d);
-
+  console.log(d.properties);
   const [[x0, y0], [x1, y1]] = path.bounds(d);
   event.stopPropagation();
   states.selectAll('path').transition().style('fill', null);
 
   if (selected !== d.properties.NAME) {
-    d3.select(this).transition().style('fill', 'red');
+    d3.select(this).transition().style('fill', '#ffffff');
     svg
       .transition()
       .duration(750)
