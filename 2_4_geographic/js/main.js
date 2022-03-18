@@ -29,6 +29,41 @@ let us, path, selected, ufos, shapes, countries, filteredUfos;
 // parsing tools
 // '10/10/1949 20:30'
 const parseTime = d3.timeParse('%m/%d/%Y %H:%M');
+const formatTime = d3.timeFormat('%A, %B %d, %I:%M%p');
+
+//ToolTip
+const tip = d3
+  .tip()
+  .attr('class', 'd3-tip')
+  .html((event, d) => {
+    let div = `<div class="box box--tip p-3">
+    <article class="columns is-gapless is-mobile">
+      <div class="column is-12">
+        <div class="content">
+        <table>
+        <tbody>
+          <tr>
+            <td class="p-1 has-text-weight-semibold is-uppercase is-size-6">${
+              d.city
+            }, ${d.state}
+            </td>
+          </tr>
+          <tr>
+            <td class="p-1 is-size-6">${formatTime(d.datetime)} </td>
+          </tr>
+          <tr>
+            <td class="p-1 is-size-6">${d.comments}</td>
+          </tr>
+        </tbody>
+      </table>
+        </div>
+      </div>
+    </article>
+  </div>`;
+    return div;
+  });
+
+g.call(tip);
 
 Promise.all([
   d3.json('../data/usState.json'),
@@ -73,7 +108,9 @@ Promise.all([
     .attr('transform', (d) => {
       const [x, y] = projection([d.longitude, d.latitude]);
       return `translate(${x}, ${y})`;
-    });
+    })
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide);
 });
 
 function reset() {
