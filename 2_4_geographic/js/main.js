@@ -16,13 +16,12 @@ svg
   .on('click', reset);
 
 const g = svg.append('g');
-const select = d3.select('.select select').on('change', (d) => {
-  update(parseData(Number(select.property('value'))));
-});
+const select = d3.select('.select select').on('change', update);
 const projection = d3.geoAlbersUsa();
 const states = g.append('g').attr('fill', '#ffffff98');
 // .attr('stroke', 'white')
 // .attr('stroke-width', 1);
+const yearSelect = document.querySelector('.select select');
 
 let us, path, selected, ufos, shapes, countries, filteredUfos, years, options;
 
@@ -117,28 +116,31 @@ Promise.all([
     .attr('d', (d) => path(d));
 
   // set the sightings data to map
-  update(parseData(Number(select.property('value'))));
+  update();
 });
 
 function parseData(year) {
   return filteredUfos.filter((ufo) => ufo.datetime.getFullYear() === year);
 }
 
-function update(data) {
+function update() {
+  let year = Number(yearSelect.value);
   const t = d3.transition().duration(500);
-  const circles = g.selectAll('circle').data(data);
+  let yearUFOs = filteredUfos.filter(
+    (ufo) => ufo.datetime.getFullYear() === year
+  );
+  const circles = g.selectAll('circle').data(yearUFOs);
 
   circles.exit().remove();
 
   circles
     .enter()
     .append('circle')
+    .attr('r', 1)
+    .attr('fill', 'black')
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide)
     .merge(circles)
-    .transition(t)
-    .attr('r', 1)
-    .attr('fill', 'black')
     .attr('transform', (d) => {
       const [x, y] = projection([d.longitude, d.latitude]);
       return `translate(${x}, ${y})`;
@@ -159,7 +161,6 @@ function reset() {
 }
 
 function clicked(event, d) {
-  console.log(d.properties);
   const [[x0, y0], [x1, y1]] = path.bounds(d);
   event.stopPropagation();
   states.selectAll('path').transition().style('fill', null);
