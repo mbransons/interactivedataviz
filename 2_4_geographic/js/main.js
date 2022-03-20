@@ -74,11 +74,13 @@ Promise.all([
   // fix date and longitude
   ufos.forEach((ufo) => {
     ufo.datetime = parseTime(ufo.datetime);
-    ufo.longitude = ufo['longitude '];
   });
 
   // remove data outside of the United States
-  filteredUfos = ufos.filter((ufo) => ufo.country === 'us');
+  // and remove puerto rico as it's outside of the Albers projection
+  filteredUfos = ufos.filter((ufo) => {
+    return ufo.country === 'us' && ufo.state !== 'pr';
+  });
 
   // create Set of years
   filteredUfos.forEach((ufo) => {
@@ -96,7 +98,7 @@ Promise.all([
     .append('option')
     .text((d) => d);
 
-  // set most recent year to selected value
+  // set most recent year to last option in the years selector
   options._groups[0][options._groups[0].length - 1].selected = 'selected';
 
   // build USA projection
@@ -119,17 +121,12 @@ Promise.all([
   update();
 });
 
-function parseData(year) {
-  return filteredUfos.filter((ufo) => ufo.datetime.getFullYear() === year);
-}
-
 function update() {
   let year = Number(yearSelect.value);
-  const t = d3.transition().duration(500);
   let yearUFOs = filteredUfos.filter(
     (ufo) => ufo.datetime.getFullYear() === year
   );
-  const circles = g.selectAll('circle').data(yearUFOs);
+  const circles = g.selectAll('circle').data(yearUFOs, (d) => d);
 
   circles.exit().remove();
 
