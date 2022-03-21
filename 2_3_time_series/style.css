@@ -1,7 +1,29 @@
+:root {
+  --axis-txt: #666666;
+  --dash-dk: #b3b3b3;
+  --dash-lt: #e1dfd8;
+  --back: #f0eee5;
+  --line: #b3b3b3;
+  --NAC: #009245;
+  --ECS: #f7cb4b;
+  --ECS-txt: #d1a842;
+  --LCN: #39b54a;
+  --EAS: #f24a53;
+  --EAS-txt: #dd7981;
+  --MEA: #5761a2;
+  --WLD: #a3745c;
+  --SAS: #ff9696;
+  --SAS-txt: #e58670;
+  --SSF: #0071bc;
+  --country-label: #747474;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap');
+
 body {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
-  padding: 1em;
+  background-color: var(--back);
 }
 
 h1 {
@@ -21,4 +43,54 @@ p {
 #chart-area {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.tick line {
+  visibility: hidden;
+}
+
+.x.axis path {
+  visibility: hidden;
+}
+
+.x.axis .tick text {
+  fill: var(--axis-txt);
+  font-size: 18px;
+  font-weight: 300;
+  transform: translate(0, 7px);
+}
+
+.x.axis .tick:nth-of-type(5n + 1) text {
+  font-size: 24px;
+}
+
+.y.axis .tick text {
+  fill: var(--axis-txt);
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.y.axis path {
+  visibility: hidden;
+}
+
+.country {
+  stroke: var(--line);
+}
+
+.region-label {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+#ECS-txt {
+  fill: var(--ECS-txt);
+}
+
+#EAS-txt {
+  fill: var(--EAS-txt);
+}
+
+#SAS-txt {
+  fill: var(--SAS-txt);
 }

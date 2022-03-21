@@ -90,6 +90,8 @@ const parseYear = d3.timeParse('%Y');
 const formatTime = d3.timeFormat('%Y');
 const formatPop = d3.format('.3s');
 
+let pop, meta, internet;
+
 // Call Data
 d3.csv('../data/populationOverTime.csv', (d) => {
   return {

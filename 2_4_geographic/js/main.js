@@ -114,8 +114,8 @@ Promise.all([
     .attr('cursor', 'pointer')
     .attr('id', (d) => d.properties.NAME)
     .append('title')
-    .text((d) => d.properties.NAME)
-    .attr('d', (d) => path(d));
+    .text((d) => d.properties.NAME);
+  // .attr('d', (d) => path(d));
 
   // set the sightings data to map
   update();
