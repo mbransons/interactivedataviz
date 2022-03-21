@@ -58,9 +58,13 @@ p {
 
 .grid-x .tick:first-of-type line,
 .grid-x .tick:last-of-type line,
-.grid-y .tick:first-of-type line,
 .grid-y .tick:last-of-type line {
   stroke: var(--dash-lt);
+}
+
+.grid-y .tick:last-of-type line {
+  stroke: var(--dash-dk);
+  stroke-dasharray: 0;
 }
 
 .grid .domain {
@@ -103,6 +107,8 @@ p {
 .country-label {
   font-size: 10px;
   font-weight: 300;
+  cursor: pointer;
+  transition: all 0.5s;
 }
 
 .region-label {
