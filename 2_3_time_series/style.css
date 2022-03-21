@@ -100,8 +100,13 @@ p {
   stroke: var(--line);
 }
 
+.country-label {
+  font-size: 10px;
+  font-weight: 300;
+}
+
 .region-label {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 300;
 }
 
@@ -115,4 +120,58 @@ p {
 
 #SAS-txt {
   fill: var(--SAS-txt);
+}
+
+#percent86 {
+  transform: translate(10px, 13px);
+}
+
+#percent73 {
+  transform: translate(10px, -1px);
+}
+
+#percent72 {
+  transform: translate(10px, 8px);
+}
+
+#percent57 {
+  transform: translate(10px, 10px);
+}
+
+#percent56 {
+  transform: translate(10px, 4px);
+}
+
+#percent54 {
+  transform: translate(10px, 16px);
+}
+#percent53 {
+  transform: translate(10px, 10px);
+}
+#percent52 {
+  transform: translate(10px, 4px);
+}
+
+#percent50 {
+  transform: translate(10px, -6px);
+}
+
+#percent45 {
+  transform: translate(10px, -3px);
+}
+
+#percent44 {
+  transform: translate(10px, -6px);
+}
+
+#percent16 {
+  transform: translate(10px, -4px);
+}
+
+#percent15 {
+  transform: translate(10px, 10px);
+}
+
+#percent14 {
+  transform: translate(10px, 8px);
 }

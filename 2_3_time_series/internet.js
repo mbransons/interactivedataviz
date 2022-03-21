@@ -103,7 +103,7 @@ g.append('g')
   .attr('class', 'grid grid-y')
   .call(make_y_gridlines().tickSize(-width).tickFormat(''));
 
-let pop, meta, internet, countries, countriesLast, regions;
+let pop, meta, internet, countries, countriesLast, countriesLabelSort, regions;
 
 // Call Data
 // https://ourworldindata.org/internet
@@ -160,6 +160,30 @@ Promise.all([
       };
     });
 
+  let curr, obj;
+  // reduces data returning a new array of objects one per country
+  // sample object structure
+  // {country: name, data: [{year: date Obj, population: num}, {}, {}]}
+
+  // countriesLabelSort
+  countriesLabelSort = countriesLast
+    .sort((a, b) => a.data.percent - b.data.percent)
+    .reduce((acc, val) => {
+      if (curr === Math.round(val.data.percent)) {
+        acc
+          .find((perObj) => perObj.percent === Math.round(val.data.percent))
+          .data.push(val.TableName);
+      } else {
+        curr = Math.round(val.data.percent);
+        obj = {};
+        obj.percent = curr;
+        obj.data = [];
+        obj.data.push(val.TableName);
+        acc.push(obj);
+      }
+      return acc;
+    }, []);
+
   g.selectAll('.country')
     .data(countries)
     .enter()
@@ -169,14 +193,34 @@ Promise.all([
     .attr('stroke-width', 1)
     .attr('d', (d) => line(d.data));
 
-  g.selectAll('.country-last')
+  const countryLabel = g
+    .selectAll('.country-last')
     .data(countriesLast)
     .enter()
-    .append('circle')
-    .attr('cx', (d) => x(d.data.year))
-    .attr('cy', (d) => y(d.data.percent))
-    .attr('r', '3')
-    .attr('fill', '#b3b3b3');
+    .append('g')
+    .attr(
+      'transform',
+      (d) => `translate(${x(d.data.year)}, ${y(d.data.percent)})`
+    );
+
+  countryLabel.append('circle').attr('r', '3').attr('fill', '#b3b3b3');
+
+  const countryLabelText = g
+    .selectAll('.country-label')
+    .data(countriesLabelSort)
+    .enter()
+    .append('g')
+    .attr(
+      'transform',
+      (d) => `translate(${x(parseYear(2016))}, ${y(d.percent)})`
+    );
+  countryLabelText
+    .append('text')
+    .attr('class', 'country-label')
+    .attr('id', (d) => `percent${d.percent}`)
+    .text((d) => `${d.percent}% ${join(d.data).join(', ')}`)
+    .attr('fill', '#b3b3b3')
+    .attr('transform', 'translate(10, 2)');
 
   g.selectAll('.region')
     .data(regions)
@@ -213,3 +257,12 @@ Promise.all([
     .attr('fill', (d) => regColor(d['Country Code']))
     .attr('transform', 'translate(10, 5)');
 });
+
+function join(arr) {
+  return arr.map((str) => {
+    if (str.indexOf(',') !== -1) {
+      return str.slice(0, str.indexOf(','));
+    }
+    return str;
+  });
+}
