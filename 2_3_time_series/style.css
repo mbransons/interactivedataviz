@@ -45,6 +45,28 @@ p {
   margin: 0 auto;
 }
 
+.grid .tick line {
+  stroke: var(--dash-dk);
+  stroke-width: 1;
+  stroke-dasharray: 4;
+  visibility: visible;
+}
+
+.grid .tick:nth-of-type(2n) line {
+  stroke: var(--dash-lt);
+}
+
+.grid-x .tick:first-of-type line,
+.grid-x .tick:last-of-type line,
+.grid-y .tick:first-of-type line,
+.grid-y .tick:last-of-type line {
+  stroke: var(--dash-lt);
+}
+
+.grid .domain {
+  visibility: hidden;
+}
+
 .tick line {
   visibility: hidden;
 }

@@ -39,10 +39,9 @@ const formatPop = d3.format('.3s');
 
 //Scales
 // Initially set ranges based on the visualization width/height
-const x = d3
-  .scaleTime()
-  .range([0, width])
-  .domain([parseYear(1990), parseYear(2016)]);
+const startDate = d3.timeDay.offset(parseYear(1990), -80);
+const endDate = d3.timeDay.offset(parseYear(2016), 80);
+const x = d3.scaleTime().range([0, width]).domain([startDate, endDate]);
 const y = d3.scaleLinear().range([height, 0]).domain([0, 100]);
 const regColor = d3
   .scaleOrdinal()
@@ -81,6 +80,28 @@ g.append('g')
   .call(xAxisCall);
 
 g.append('g').attr('class', 'y axis').call(yAxisCall);
+
+// grid lines
+// gridlines in x axis function
+function make_x_gridlines() {
+  return d3.axisBottom(x).ticks(20);
+}
+
+// gridlines in y axis function
+function make_y_gridlines() {
+  return d3.axisLeft(y).ticks(20);
+}
+
+// add the X gridlines
+g.append('g')
+  .attr('class', 'grid grid-x')
+  .attr('transform', 'translate(0,' + height + ')')
+  .call(make_x_gridlines().tickSize(-height).tickFormat(''));
+
+// add the Y gridlines
+g.append('g')
+  .attr('class', 'grid grid-y')
+  .call(make_y_gridlines().tickSize(-width).tickFormat(''));
 
 let pop, meta, internet, countries, countriesLast, regions;
 
