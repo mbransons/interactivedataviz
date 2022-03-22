@@ -30,46 +30,48 @@
       <div class="column p-5 is-5 is-offset-1">
         <div class="content">
           <h3>Notes</h3>
-          <p>This visualization uses a dataset of UFO Reports in the United States which I came across on <a
-              href="https://www.kaggle.com/abigaillarion">Abigail Larion</a>'s Kaggle Notebook (open <a
-              href="https://www.kaggle.com/abigaillarion/ufo-reports-in-united-states/notebook">it</a> with care
-            as my browser crashes with every attempt to scroll through it). Her data was actually sourced from <a
-              href="https://github.com/planetsig/ufo-reports">Sigmond Axel</a>, who had scrapped the data from the
-            <a href="https://nuforc.org/">National UFO Reporting Center (NUFORC)</a>.
+          <p>This visualization is an attempt to rebuild a portion of '<a
+              href="https://ourworldindata.org/internet">Internet</a>' by Max Roser, Hannah Ritchie and Esteban
+            Ortiz-Ospina. They use data from the World Bank's '<a
+              href="https://data.worldbank.org/indicator/it.net.user.zs">Individuals using the Internet (% of
+              population)</a>' and '<a href="https://data.worldbank.org/indicator/SP.POP.TOTL">Population, total</a>.'
+            With this data and some fastidious palette sampling, there was a lot of success in remodeling the chart.
           </p>
-          <p>There are 68,000+ usable records, and any attempt to plot them all lead to my browser crashing while
-            trying to draw that many SVG circle elements. With the year filter, the maximum number of records
-            being drawn from seems to be just under 7,000.</p>
-          <p>I find the comments associated with each reporting the most entertaining part of the dataset. Sadly some
-            are truncated right as they're getting interesting...</p>
-          <blockquote>At 3:30 on January 7&#44 2012 I was hunting on my fathers farm just South of Ashville&#44
-            Ohio. I was looking up at the sky and all of a su</blockquote>
-          <p>Truncated comments appear to be part of the process when <a
-              href="https://www.nuforc.org/webreports/ndxp120112.html">tabulated data</a> is presented on the
-            NUFORC site. But they do link to the <a
-              href="https://www.nuforc.org/webreports/reports/086/S86408.html">rest of our hunter's tale</a> in
-            its individual report page.</p>
-          <p>The visualization allows you to zoom into each state by clicking on it. As well you can click,
-            drag, and scroll in and out across the SVG. This possible with the <a
-              href="https://github.com/d3/d3-zoom">d3.zoom</a> constructor, though I basically adapted a map
-            visualization with zoom features. You can zoom out to the full map at anytime by clicking a point
-            outside the United States, or clicking a selected state.</p>
+          <p>The most interesting part of build was figuring out the labels for the countries and regions to the right
+            of each line. There was some necessary averaging of final percentages, as well as grouping of the countries
+            that fell under each percentage. But to add the countries which were in data structure <em>within</em> the
+            joined data
+            structure, I used the d3's
+            <code><a href="https://github.com/d3/d3-selection#selection_each">selection.each(function)</a></code>. It
+            allowed for me to write a function that looped through the gathered countries and append a
+            <code>tspan</code> for each one
+            to
+            the text element. I didn't initially make much sense of it until I saw <a
+              href="https://bl.ocks.org/mbostock/4c5fad723c87d2fd8273">an example</a>.
+          </p>
+          <p>Also, I added event listeners to the country paths so that when a path is hovered on it becomes the color
+            of the region it's in. This part of the code uses a bunch of modifiers that are written in 'vanilla
+            javascript' rather than using d3 event listeners and attribute methods. I'm not sure when it's better to use
+            regular old JS vs. D3.js for some interactive elements.</p>
+          <p>The country labels could still use some improvement. Given the margin is width, at times there is not
+            enough room for all of the countries in a list for a given rounded percentage. There's problem <em>a
+              lot</em> of fine tuning the code based on this particular bit and at some point I may tackle it!</p>
         </div>
       </div>
       <div class="column p-5 is-5">
         <div class="content">
           <h3>References</h3>
           <ul>
-            <li>Chart adapted from <a
-                href="https://observablehq.com/@d3/zoom-to-bounding-box?collection=@d3/d3-zoom">zoom
-                to bounding box of US Albers Projection</a>
+            <li>Internet Chart <a
+                href="https://ourworldindata.org/uploads/2021/03/Share-of-internet-users.png">Image</a> from Our World
+              in Data;
             </li>
-            <li>Abigail Larion <a
-                href="https://www.kaggle.com/code/abigaillarion/ufo-reports-in-united-states/data">Kaggle DataSet</a>
+            <li>World Bank Data: <a href="https://data.worldbank.org/indicator/it.net.user.zs">Individuals using the
+                Internet (% of
+                population)</a> and <a href="https://data.worldbank.org/indicator/SP.POP.TOTL">Population, total</a>;
             </li>
-            <li><a href="https://github.com/bumbeishvili/d3-v6-tip">D3 Tip version 6</a></li>
-            <li>Background image is from NASA – <a href="https://images.nasa.gov/details-PIA17563">Crab Nebula, as Seen
-                by Herschel and Hubble</a></li>
+            <li>Grid lines adapted from a <a href="https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218">simple
+                graph with grid lines</a>.</li>
           </ul>
         </div>
       </div>
