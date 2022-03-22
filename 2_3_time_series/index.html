@@ -3,12 +3,78 @@
 <head>
   <meta charset="utf-8">
   <title>Interactive Data Visualization Tutorial</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="css/bulma.min.css" />
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/d3-tip.min.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <div id="chart-area"></div>
+  <section class="chart-section">
+    <div class="columns">
+      <div class="column is-full is-10 is-offset-1">
+        <div class="py-4">
+          <h1 class="has-text-centered is-size-3 heading">Share of the Population Using
+            the Internet
+          </h1>
+          <h2 class="has-text-centered is-size-6">Rebuilt visualization based on <a
+              href="https://ourworldindata.org/internet">Our World in Data – Internet</a></h2>
+        </div>
+
+        <div id="chart-area"></div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="columns mt-5">
+      <div class="column p-5 is-5 is-offset-1">
+        <div class="content">
+          <h3>Notes</h3>
+          <p>This visualization uses a dataset of UFO Reports in the United States which I came across on <a
+              href="https://www.kaggle.com/abigaillarion">Abigail Larion</a>'s Kaggle Notebook (open <a
+              href="https://www.kaggle.com/abigaillarion/ufo-reports-in-united-states/notebook">it</a> with care
+            as my browser crashes with every attempt to scroll through it). Her data was actually sourced from <a
+              href="https://github.com/planetsig/ufo-reports">Sigmond Axel</a>, who had scrapped the data from the
+            <a href="https://nuforc.org/">National UFO Reporting Center (NUFORC)</a>.
+          </p>
+          <p>There are 68,000+ usable records, and any attempt to plot them all lead to my browser crashing while
+            trying to draw that many SVG circle elements. With the year filter, the maximum number of records
+            being drawn from seems to be just under 7,000.</p>
+          <p>I find the comments associated with each reporting the most entertaining part of the dataset. Sadly some
+            are truncated right as they're getting interesting...</p>
+          <blockquote>At 3:30 on January 7&#44 2012 I was hunting on my fathers farm just South of Ashville&#44
+            Ohio. I was looking up at the sky and all of a su</blockquote>
+          <p>Truncated comments appear to be part of the process when <a
+              href="https://www.nuforc.org/webreports/ndxp120112.html">tabulated data</a> is presented on the
+            NUFORC site. But they do link to the <a
+              href="https://www.nuforc.org/webreports/reports/086/S86408.html">rest of our hunter's tale</a> in
+            its individual report page.</p>
+          <p>The visualization allows you to zoom into each state by clicking on it. As well you can click,
+            drag, and scroll in and out across the SVG. This possible with the <a
+              href="https://github.com/d3/d3-zoom">d3.zoom</a> constructor, though I basically adapted a map
+            visualization with zoom features. You can zoom out to the full map at anytime by clicking a point
+            outside the United States, or clicking a selected state.</p>
+        </div>
+      </div>
+      <div class="column p-5 is-5">
+        <div class="content">
+          <h3>References</h3>
+          <ul>
+            <li>Chart adapted from <a
+                href="https://observablehq.com/@d3/zoom-to-bounding-box?collection=@d3/d3-zoom">zoom
+                to bounding box of US Albers Projection</a>
+            </li>
+            <li>Abigail Larion <a
+                href="https://www.kaggle.com/code/abigaillarion/ufo-reports-in-united-states/data">Kaggle DataSet</a>
+            </li>
+            <li><a href="https://github.com/bumbeishvili/d3-v6-tip">D3 Tip version 6</a></li>
+            <li>Background image is from NASA – <a href="https://images.nasa.gov/details-PIA17563">Crab Nebula, as Seen
+                by Herschel and Hubble</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
   <script src=" ../lib/d3.min.7.2.js">
   </script>
   <script src="internet.js"></script>

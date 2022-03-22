@@ -22,22 +22,10 @@
 
 body {
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+}
+
+.chart-section {
   background-color: var(--back);
-}
-
-h1 {
-  font-size: 3em;
-  margin: 0.25em 0;
-}
-
-h3 {
-  font-size: 2em;
-  margin: 0.25em 0;
-}
-
-p {
-  font-size: 1em;
 }
 
 #chart-area {
@@ -100,15 +88,18 @@ p {
   visibility: hidden;
 }
 
-.country {
+.country-path {
   stroke: var(--line);
+  cursor: pointer;
+}
+
+.country-path.selected {
+  stroke: var(--country-label);
 }
 
 .country-label {
   font-size: 10px;
   font-weight: 300;
-  cursor: pointer;
-  transition: all 0.5s;
 }
 
 .region-label {

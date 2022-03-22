@@ -31,6 +31,17 @@ const legend = g
 
 const regionCodes = ['NAC', 'ECS', 'LCN', 'EAS', 'MEA', 'WLD', 'SAS', 'SSF'];
 
+const regionNames = [
+  'North America',
+  'Europe & Central Asia',
+  'Latin America & Caribbean',
+  'East Asia & Pacific',
+  'Middle East & North Africa',
+  'World',
+  'South Asia',
+  'Sub-Saharan Africa',
+];
+
 // Parsing tools
 const percentFormat = d3.format(',%');
 const parseYear = d3.timeParse('%Y');
@@ -103,7 +114,14 @@ g.append('g')
   .attr('class', 'grid grid-y')
   .call(make_y_gridlines().tickSize(-width).tickFormat(''));
 
-let pop, meta, internet, countries, countriesLast, countriesLabelSort, regions;
+let pop,
+  meta,
+  internet,
+  countries,
+  countriesAdd,
+  countriesLast,
+  countriesLabelSort,
+  regions;
 
 // Call Data
 // https://ourworldindata.org/internet
@@ -150,6 +168,21 @@ Promise.all([
     .find((c) => c['Country Code'] === 'PRK')
     .data.push({ year: parseYear(2016), percent: 0 });
 
+  countriesAdd = countries.map((c) => {
+    if (c.data.some((val) => formatTime(val.year) === '2016')) {
+      return c;
+    } else {
+      if (c.data.length > 0) {
+        let last = c.data[c.data.length - 1];
+        console.log(last);
+        console.log(c.data);
+        last.year = parseYear(2016);
+        c.data.push(last);
+        return c;
+      }
+      return c;
+    }
+  });
   countriesLast = countries
     .filter((c) => c.data.some((val) => formatTime(val.year) === '2016'))
     .map((c) => {
@@ -172,25 +205,27 @@ Promise.all([
       if (curr === Math.round(val.data.percent)) {
         acc
           .find((perObj) => perObj.percent === Math.round(val.data.percent))
-          .data.push(val.TableName);
+          .data.push({ name: val.TableName, code: val['Country Code'] });
       } else {
         curr = Math.round(val.data.percent);
         obj = {};
         obj.percent = curr;
         obj.data = [];
-        obj.data.push(val.TableName);
+        obj.data.push({ name: val.TableName, code: val['Country Code'] });
         acc.push(obj);
       }
       return acc;
     }, []);
 
-  g.selectAll('.country')
+  g.selectAll('.country-path')
     .data(countries)
     .enter()
     .append('path')
+    .attr('id', (d) => d['Country Code'])
+    .attr('class', 'country-path')
     .attr('fill', 'none')
     .attr('stroke', '#b3b3b3')
-    .attr('stroke-width', 1)
+    .attr('stroke-width', 2)
     .attr('d', (d) => line(d.data));
 
   const countryLabel = g
@@ -203,7 +238,11 @@ Promise.all([
       (d) => `translate(${x(d.data.year)}, ${y(d.data.percent)})`
     );
 
-  countryLabel.append('circle').attr('r', '3').attr('fill', '#b3b3b3');
+  countryLabel
+    .append('circle')
+    .attr('r', '3')
+    .attr('class', (d) => d['Country Code'])
+    .attr('fill', '#b3b3b3');
 
   const countryLabelText = g
     .selectAll('.country-label')
@@ -218,9 +257,20 @@ Promise.all([
     .append('text')
     .attr('class', 'country-label')
     .attr('id', (d) => `percent${d.percent}`)
-    .text((d) => `${d.percent}% ${join(d.data).join(', ')}`)
+    .attr('transform', 'translate(10, 2)')
     .attr('fill', '#b3b3b3')
-    .attr('transform', 'translate(10, 2)');
+    .each(multiple);
+
+  function multiple(d) {
+    let text = d3.select(this);
+    text
+      .append('tspan')
+      .attr('class', 'percent-label')
+      .text((d) => `${d.percent}% `);
+    d.data.forEach((obj) => {
+      text.append('tspan').attr('class', obj.code).text(`${obj.name}, `);
+    });
+  }
 
   g.selectAll('.region')
     .data(regions)
@@ -228,7 +278,7 @@ Promise.all([
     .append('path')
     .attr('fill', 'none')
     .attr('stroke', (d) => regColor(d['Country Code']))
-    .attr('stroke-width', 5)
+    .attr('stroke-width', 6)
     .attr('d', (d) => line(d.data));
 
   const regionsLabel = g
@@ -256,13 +306,43 @@ Promise.all([
     )
     .attr('fill', (d) => regColor(d['Country Code']))
     .attr('transform', 'translate(10, 5)');
+  const countryPaths = document.querySelectorAll('.country-path');
+  for (let path of countryPaths) {
+    path.addEventListener('mouseover', function () {
+      let country = countries.find((c) => c['Country Code'] === this.id);
+      let idx = regionNames.findIndex((r) => r === country.Region);
+      let fill = regColor(regionCodes[idx]);
+      this.style.stroke = fill;
+      this.style.strokeWidth = 4;
+      let countryLabels = document.querySelectorAll(`.${this.id}`);
+      for (let label of countryLabels) {
+        label.style.fill = fill;
+        label.style.transform = 'scale(2)';
+        label.style.fontSize = '20px';
+      }
+      countryLabels[1].parentElement.firstChild.style.fill = fill;
+      countryLabels[1].parentElement.firstChild.style.fontSize = '20px';
+    });
+    path.addEventListener('mouseout', function () {
+      this.style.stroke = '#b3b3b3';
+      this.style.strokeWidth = 2;
+      let countryLabels = document.querySelectorAll(`.${this.id}`);
+      for (let label of countryLabels) {
+        label.style.fill = '#b3b3b3';
+        label.style.transform = 'scale(1)';
+        label.style.fontSize = '10px';
+      }
+      countryLabels[1].parentElement.firstChild.style.fill = '#b3b3b3';
+      countryLabels[1].parentElement.firstChild.style.fontSize = '10px';
+    });
+  }
 });
 
 function join(arr) {
-  return arr.map((str) => {
-    if (str.indexOf(',') !== -1) {
-      return str.slice(0, str.indexOf(','));
+  return arr.map((obj) => {
+    if (obj.name.indexOf(',') !== -1) {
+      return obj.name.slice(0, obj.name.indexOf(','));
     }
-    return str;
+    return obj.name;
   });
 }
