@@ -95,9 +95,9 @@ const parseGenres = (str) => {
 };
 
 //request to movie database to search for movie
-async function search(movie) {
+function search(movie) {
   let movieTitle = parseTitle(movie.Title);
-  return await axios
+  return axios
     .get(
       `https://api.themoviedb.org/3/search/movie?api_key=f7f9fe195f863c63a5e2f42428f3c16b&language=en-US&query=${movieTitle}&page=1&include_adult=false`
     )
@@ -153,8 +153,8 @@ g.call(tip);
 
 // An asynchronous function to return each search promise to an array
 // via https://stackoverflow.com/questions/57979376/multiple-api-calls-with-fetch-in-chain-and-promise-all
-async function fetchMoreData(movies) {
-  const promises = movies.map((movie) => search(movie));
+async function fetchMovies(data) {
+  const promises = data.map((movie) => search(movie));
   return await Promise.all(promises);
 }
 
@@ -174,8 +174,8 @@ const dataCall = d3
     return data;
   })
   .then((data) => {
-    const promise = fetchMoreData(data);
-    return Promise.all([data, promise]);
+    const promises = fetchMovies(data);
+    return Promise.all([data, promises]);
   })
   .then(([movies, posters]) => {
     // set posterURL from the promise value to the returned value
