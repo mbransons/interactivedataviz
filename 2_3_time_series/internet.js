@@ -274,7 +274,26 @@ Promise.all([
       .append('tspan')
       .attr('class', 'percent-label')
       .text((d) => `${d.percent}% `);
-    d.data.forEach((obj) => {
+    let countryObjs = d.data.map((obj) => {
+      obj.name = shorten(obj.name);
+      return obj;
+    });
+
+    // for (let i = 0; i < countryObjs.length; i++) {
+    //   if (countryObjs.length === 1) {
+    //     text
+    //       .append('tspan')
+    //       .attr('class', countryObjs[i].code)
+    //       .text(countryObjs[i].name);
+    //   } else if (countryObjs.length === 2) {
+    //     text
+    //     .append('tspan')
+    //     .attr('class', countryObjs[i].code)
+    //     .text(countryObjs[i].name);
+    //   }
+    // }
+
+    countryObjs.forEach((obj) => {
       text.append('tspan').attr('class', obj.code).text(`${obj.name}, `);
     });
   }
@@ -361,3 +380,10 @@ Promise.all([
     });
   }
 });
+
+function shorten(str) {
+  if (str.indexOf(',') !== -1) {
+    return str.slice(0, str.indexOf(','));
+  }
+  return str;
+}
