@@ -51,17 +51,17 @@ d3.json('../data/flare.json', d3.autotype).then((data) => {
  * this will be run *one time* when the data finishes loading in
  * */
 function init() {
+  const container = d3.select('#container').style('position', 'relative');
   root = d3
     .hierarchy(state.data) // children accessor
     .sum((d) => d.value) // sets the 'value' of each level
     .sort((a, b) => b.value - a.value);
 
-  tooltip = g
+  tooltip = container
     .append('div')
     .attr('class', 'tooltip')
     .style('top', 0)
     .style('left', 0)
-    .style('color', '#ffffff')
     .style('position', 'absolute');
 
   // make treemap layout generator
