@@ -7,7 +7,7 @@ const width = 800 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
 
 // declare data variable to assign value after data call
-let data;
+let data, tooltip;
 
 // use viewBox rather than x and y values so that a aspect ratio is set and the visualization can be responsively scaled
 const svg = d3
@@ -34,7 +34,7 @@ const background = g
 /**
  * APPLICATION STATE
  * */
-let state = {};
+let state = { data: null, hover: null };
 let root;
 const c = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -56,6 +56,14 @@ function init() {
     .sum((d) => d.value) // sets the 'value' of each level
     .sort((a, b) => b.value - a.value);
 
+  tooltip = g
+    .append('div')
+    .attr('class', 'tooltip')
+    .style('top', 0)
+    .style('left', 0)
+    .style('color', '#ffffff')
+    .style('position', 'absolute');
+
   // make treemap layout generator
   const tree = d3.treemap().size([width, height]).padding(1).round(true);
 
@@ -68,16 +76,41 @@ function init() {
     .data(root.leaves())
     .join('g')
     .attr('transform', (d) => `translate(${d.x0},${d.y0})`);
+
   leaf
     .append('rect')
     .attr('fill', '#999999')
     .attr('stroke', '#000000')
     .attr('width', (d) => d.x1 - d.x0)
     .attr('height', (d) => d.y1 - d.y0);
+
+  leaf
+    .on('mouseenter', (e, d) => {
+      state.hover = {
+        position: [d.x0, d.y0],
+        name: d.data.name,
+      };
+      draw();
+      console.log(state.hover.position, state.hover.name);
+    })
+    .on('mouseleave', () => {
+      state.hover = null;
+      draw();
+    });
 }
 
 /**
  * DRAW FUNCTION
  * we call this every time there is an update to the data/state
  * */
-function draw() {}
+function draw() {
+  if (state.hover) {
+    tooltip
+      .html(`<div>${state.hover.name}</div`)
+      .style('opacity', '0.9')
+      .style(
+        'transform',
+        `translate(${state.hover.position[0]}px, ${state.hover.position[1]}px)`
+      );
+  }
+}
