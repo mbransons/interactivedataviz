@@ -3,7 +3,7 @@
  * */
 // set margins, width/height
 const margin = { left: 0, right: 0, top: 0, bottom: 0 };
-const width = 600 - margin.left - margin.right;
+const width = 800 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
 
 // declare data variable to assign value after data call
@@ -51,8 +51,29 @@ d3.json('../data/flare.json', d3.autotype).then((data) => {
  * this will be run *one time* when the data finishes loading in
  * */
 function init() {
-  root = d3.hierarchy(state.data).sum((d) => d.value);
-  draw(); // calls the draw function
+  root = d3
+    .hierarchy(state.data) // children accessor
+    .sum((d) => d.value) // sets the 'value' of each level
+    .sort((a, b) => b.value - a.value);
+
+  // make treemap layout generator
+  const tree = d3.treemap().size([width, height]).padding(1).round(true);
+
+  // call our generator on our root hierarchy node
+  tree(root); // creates our coordinates and dimensions based on the hierarchy and tiling algorithm
+
+  // create g for each leaf
+  const leaf = g
+    .selectAll('g')
+    .data(root.leaves())
+    .join('g')
+    .attr('transform', (d) => `translate(${d.x0},${d.y0})`);
+  leaf
+    .append('rect')
+    .attr('fill', '#999999')
+    .attr('stroke', '#000000')
+    .attr('width', (d) => d.x1 - d.x0)
+    .attr('height', (d) => d.y1 - d.y0);
 }
 
 /**
