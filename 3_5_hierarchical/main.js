@@ -3,7 +3,7 @@
  * */
 // set margins, width/height
 const margin = { left: 0, right: 0, top: 0, bottom: 0 };
-const width = 800 - margin.left - margin.right;
+const width = 600 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
 
 // declare data variable to assign value after data call
@@ -57,12 +57,7 @@ function init() {
     .sum((d) => d.value) // sets the 'value' of each level
     .sort((a, b) => b.value - a.value);
 
-  tooltip = container
-    .append('div')
-    .attr('class', 'tooltip')
-    .style('top', 0)
-    .style('left', 0)
-    .style('position', 'absolute');
+  tooltip = container.append('div').attr('class', 'tooltip');
 
   // make treemap layout generator
   const tree = d3.treemap().size([width, height]).padding(1).round(true);
@@ -89,9 +84,15 @@ function init() {
       state.hover = {
         position: [d.x0, d.y0],
         name: d.data.name,
+        targetPos: [e.offsetX, e.offsetY],
+        target: e.target,
+        bbox: [e.target.getBBox().width / 2, e.target.getBBox().height / 2],
+        matrix: [e.target.getScreenCTM().e, e.target.getScreenCTM().f],
       };
       draw();
-      console.log(state.hover.position, state.hover.name);
+      console.log(`state hover x,y: ${state.hover.targetPos}, 
+                 state bbox:${state.hover.bbox}, 
+                 state matrix: ${state.hover.matrix}`);
     })
     .on('mouseleave', () => {
       state.hover = null;
@@ -110,7 +111,7 @@ function draw() {
       .style('opacity', '0.9')
       .style(
         'transform',
-        `translate(${state.hover.position[0]}px, ${state.hover.position[1]}px)`
+        `translate(${state.hover.matrix[0]}px, ${state.hover.matrix[1]}px)`
       );
   }
 }
